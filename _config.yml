@@ -16,7 +16,7 @@
 title: Oracle Study hisory
 description: oracle DBA
 baseurl: "/mu.github.io/" # the subpath of your site, e.g. /blog
-url: "https://github.com/lght2000" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://lght2000.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 #remote_theme: pmarsceill/just-the-docs
 theme: just-the-docs
@@ -42,7 +42,7 @@ aux_links:
     - "https://oss.navercorp.com/OracleDBA/developer_FAQ"
 
 # Footer content appears at the bottom of every page's main content
-footer_content: "Copyright &copy; 2019-2020 oracle study Distributed by <a href=\"https://github.com/lght2000/mu.github.io\">sangmu</a>"
+footer_content: "Copyright &copy; 2019-2020 oracle study Distributed by <a href=\"https://lght2000.github.io/mu.github.io\">sangmu</a>"
 
 # Color scheme currently only supports "dark" or nil (default)
 color_scheme: nil
