@@ -38,11 +38,11 @@ heading_anchors: true
 
 # Aux links for the upper right navigation
 aux_links:
-  "Oracle FAQ on GitHub":
-    - "https://oss.navercorp.com/OracleDBA/developer_FAQ"
+  "Oracle study on GitHub":
+    - "https://github.com/lght2000/mu.github.io"
 
 # Footer content appears at the bottom of every page's main content
-footer_content: "Copyright &copy; 2019-2020 oracle study Distributed by <a href=\"https://lght2000.github.io/mu.github.io\">sangmu</a>"
+footer_content: "Copyright &copy; 2019-2020 oracle study Distributed by <a href=\"https://github.com/lght2000/mu.github.io\">sangmu</a>"
 
 # Color scheme currently only supports "dark" or nil (default)
 color_scheme: nil
