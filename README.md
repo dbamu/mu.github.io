@@ -1,5 +1,5 @@
-### developer FAQ
-- 자주 문의오는 내용들을 정리해서 커뮤니케이션 감소 목적.
+### oracle study
+- DBA 공부 목적
 
 
 ## Installation

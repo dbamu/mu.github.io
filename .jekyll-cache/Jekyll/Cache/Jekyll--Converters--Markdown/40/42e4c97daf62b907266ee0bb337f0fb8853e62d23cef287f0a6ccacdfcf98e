@@ -1,8 +1,0 @@
-I"U<h1 id="dbms-faq-for-developer">DBMS FAQ for developer</h1>
-<ul>
-  <li><a href="https://pages.oss.navercorp.com/OracleDBA/developer_FAQ/OracleDBA/developer_FAQ/docs/oracle">AWR를 이용한 튜닝</a></li>
-  <li><a href="https://pages.oss.navercorp.com/OracleDBA/developer_FAQ/OracleDBA/developer_FAQ/docs/mysql">성능고도화 원리</a></li>
-  <li><a href="https://pages.oss.navercorp.com/OracleDBA/developer_FAQ/OracleDBA/developer_FAQ/docs/mongo">MongoDB</a></li>
-  <li><a href="https://pages.oss.navercorp.com/OracleDBA/developer_FAQ/OracleDBA/developer_FAQ/docs/hbase">Hbase</a></li>
-</ul>
-:ET

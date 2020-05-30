@@ -208,7 +208,7 @@ END;
         
 - awrload.sql : 백업 받은 데이터 dump file을 적재하는 스크립트(@?/rdbms/admin/awrload.sql)
     - 백업된 AWR 데이터가 저장되어 있던 DB ID와 동일한 DB ID를 가지는 DB에 적재할 수 없음.
-    ![](https://github.com/lght2000/ssang.github.io/blob/master/img/awr%EB%B0%B1%EC%97%85.PNG?raw=true){: width="600" height="500"  .center}
+    ![](https://github.com/lght2000/mu.github.io/blob/master/assets/images/awr%EB%B0%B1%EC%97%85.PNG?raw=true){: width="600" height="500"  .center}
 
 
 

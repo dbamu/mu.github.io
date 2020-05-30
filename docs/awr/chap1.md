@@ -29,7 +29,7 @@ nav_order: 1
     - snapshot interval은 default 1시간, 보관기간은 7일이고 수집 및 보관 주기의 변경 가능.
     - AWR 데이터 조회는 WRH$_*, WRM$_*, DBA_HIST_*를 통해 조회 가능.
     
-    ![](https://github.com/lght2000/ssang.github.io/blob/master/img/Oracle-AWR-Report.png?raw=true){: width="700" height="500"  .center}
+    ![](https://github.com/lght2000/mu.github.io/blob/master/assets/images/Oracle-AWR-Report.png?raw=true){: width="700" height="500"  .center}
 
 - AWR 수집 데이터 
     - 데이터베이스 대기 이벤트 정보 및 통계 정보
