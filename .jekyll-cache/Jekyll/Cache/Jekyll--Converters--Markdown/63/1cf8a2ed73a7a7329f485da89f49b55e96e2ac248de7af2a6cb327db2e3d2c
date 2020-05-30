@@ -1,0 +1,80 @@
+I"<h2 id="ora-01555는-왜-발생하고-어떻게-해야하나요">ORA-01555는 왜 발생하고 어떻게 해야하나요?</h2>
+
+<p><strong>ORA-1555 발생 원인</strong></p>
+<ul>
+  <li>트랜잭션이 너무 길어 긴 시간이 지난 후 undo 영역에서 변경 전 데이터를 찾을 수 없을 때 발생합니다.
+    <ol>
+      <li>데이터를 읽어 내려가다가 변경된 블록을 만나(이미 앞서 읽었던 블록을 다시 방문하는 경우 일 수도 있음) 과거 시점의 데이터를 읽으려고 하는데 UNDO 블록이 다른 트랜잭션에 의해 이미 재사용되어 필요한 Undo 정보를 얻을 수 없는 경우입니다.</li>
+      <li>커밋된 트랜잭션 테이블 데이터가 다른 트랜잭션에 의해 재사용돼 커밋 정보를 확인 할 수 없는 경우 발생합니다.</li>
+    </ol>
+  </li>
+  <li>ORA-01555: snapshot too old: rollback segment number string with name “string” too small</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/ora1555.png?raw=true" alt="ora-01555" /></p>
+
+<p><strong>대응 방안</strong></p>
+<ol>
+  <li>UNDO TABLESPACE 사이즈 증대
+    <blockquote>
+      <ul>
+        <li>가능은 하나 절대적인 방법은 아님. =&gt; 적정 공간이 설정되어 있다면 추가 확장은 하지 않음.</li>
+        <li>물리적인 공간은 한정적이기 때문에 계속 확장할 수 없음.</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>쿼리 성능 개선 (비효율적인 플랜이 있는지 확인)
+    <blockquote>
+      <ul>
+        <li>대부분의 경우 쿼리개선을 통해 해결할 수 있음. =&gt; DBA에게 snap shot too old가 발생할 때 수행된 쿼리를 전달.  =&gt; 튜닝으로 성능 개선</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>insert &amp;undo &amp;index 관련해서 생기는 이슈
+    <blockquote>
+      <ul>
+        <li>undo를 발생시키는 DML
+          <blockquote>
+            <ul>
+              <li>insert : 추가된 레코드의 rowid</li>
+              <li>update : 변경되는 컬럼에 대한 before image</li>
+              <li>delete : 지워지는 로우의 모든 컬럼에 대한 before 이미지</li>
+            </ul>
+          </blockquote>
+        </li>
+        <li>대부분의 table에는 index가 존재 =&gt; table에 대한 undo뿐만 아니라 index에 대한 undo 관리도 필요(gobs of undo) 따라서 DML이 많은 테이블에 index를 통한 select 시 snap shot too old가 발생.
+          <blockquote>
+            <ul>
+              <li>=&gt; 해결방법</li>
+              <li>insert 시 /*+ append */  힌트를 줍니다.(disk에 바로 쓰기 때문에 undo 영역을 사용하지 않음.</li>
+              <li>주의 =&gt; 다른 session에서 insert를 진행하는 테이블에 대한 DML이 없어야 하고 inseret append 즉시 commit 필요 그렇지 않을 경우 table lock이 걸림.</li>
+            </ul>
+          </blockquote>
+        </li>
+      </ul>
+    </blockquote>
+  </li>
+</ol>
+
+<h2 id="참고-사항">참고 사항</h2>
+
+<p><strong>undo 사용 목적</strong></p>
+<ul>
+  <li>읽기 일관성 (=Read Consistency)
+    <ul>
+      <li>데이터가 틀어지는 것을 막기 위해 사용</li>
+    </ul>
+  </li>
+  <li>트랜잭션 롤백
+    <ul>
+      <li>과거의 데이터로 돌리는 것을 의미</li>
+    </ul>
+  </li>
+  <li>인스턴스 crash 발생시 recovery용
+    <ul>
+      <li>DB에 문제가 생겨 shutdown 될 경우 startup시 손실된 데이터를 복구하는데 사용</li>
+    </ul>
+  </li>
+</ul>
+
+:ET

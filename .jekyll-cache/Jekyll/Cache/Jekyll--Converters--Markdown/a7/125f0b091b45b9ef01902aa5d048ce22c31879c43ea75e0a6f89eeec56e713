@@ -1,0 +1,35 @@
+I" 
+<h2 id="데이터를-잘못-변경했는데-복구가-가능할까요">데이터를 잘못 변경했는데 복구가 가능할까요?</h2>
+
+<p><strong>상황에 따라 가능 or 불가능</strong></p>
+<ul>
+  <li>undo segment에 이전 데이터가 남아있는 경우(expired, unexpired 상태로 undo segment에 존재)에는 flashback을 이용해서 과거 데이터 복구 가능합니다.(DBA 분에게 요청)</li>
+  <li>데이터 변경량이 많은 서비스라면 undo_retention(5시간)안에는 복구 될 수도 있고 이미 다른 데이터로 바뀐 경우 5시간 안에 요청을 해도 불가능 할 수 있습니다.</li>
+  <li>따라서 데이터 변경이 잘못되었을 경우 빠르게 요청을 주시는게 중요합니다.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/request_data_recovery.png?raw=true" alt="req_recover" /></p>
+
+<p><strong>undo segment에 과거 데이터가 없어도 복구는 가능</strong></p>
+<ul>
+  <li>undo segment에 과거 데이터가 남아있지 않을 경우에도 복구는 가능하긴 합니다.</li>
+  <li>그러나 SE분들의 협조가 필요하고 full backup 본을 가져와서 archive log를 적용하는 방식으로 특정 시점까지 복구해야 합니다.</li>
+  <li>이 경우 1주일 정도의 시간이 필요하게 됩니다.</li>
+  <li>절차도 존재하고 시간도 많이 소요되기 때문에 데이터 변경 작업은 꼼꼼하게 확인하시고 진행하시길 바랍니다.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/recovery_course.jpg?raw=true" alt="recover_step" /></p>
+
+<h2 id="참고-사항">참고 사항</h2>
+
+<p>undo</p>
+<ul>
+  <li>변경된 데이터는 redo log에 기록되고 변경 전 데이터는 undo segment에 기록됩니다.</li>
+  <li>undo segment의 크기는 유한하기 때문에 데이터 변경량이 많을 경우 undo 영역이 full 찰 수 있습니다.</li>
+  <li>undo segment는 transaction이 유지 중이거나 commit / rollback에 따라 active, expired, unexpired 상태로 유지됩니다.</li>
+  <li>undo_retention 설정 값(현재기준 5시간)만큼 변경 전 데이터는 유지 가능.</li>
+  <li>그러나 공간이 부족할 경우 undo_retention 설정에 상관없이 expired 상태이거나 unexpired 상태인 undo segment는 다른 데이터로 변경될 수 있습니다.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/undo_segment_manage.jpg?raw=true" alt="undo_segment" /></p>
+:ET

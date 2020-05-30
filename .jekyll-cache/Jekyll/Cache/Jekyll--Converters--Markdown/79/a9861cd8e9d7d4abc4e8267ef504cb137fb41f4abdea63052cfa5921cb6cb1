@@ -1,0 +1,63 @@
+I"D<h2 id="buffer-cache에-자주-사용하는-데이터-고정이-가능할까요">buffer cache에 자주 사용하는 데이터 고정이 가능할까요?</h2>
+
+<ul>
+  <li>가능한 부분이지만 오라클 운영 표준상 db_keep_cache_size를 지정하지 않기 때문에 사용 불가</li>
+</ul>
+
+<h2 id="부가-설명">부가 설명</h2>
+
+<ul>
+  <li>DB buffer Cache 크게 3가지로 나눈다면…?
+    <blockquote>
+      <ul>
+        <li>default : 일반적인 버퍼 캐시</li>
+        <li>keep : 사용빈도가 높아 disk I/O를 줄이고자 사용할 데이터 저장</li>
+        <li>recycle : 데이터 제거 우선순위가 높은 데이터 저장</li>
+      </ul>
+    </blockquote>
+  </li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/buffer_sturcture.png?raw=true" alt="buffer_sturcture" width="500" height="400" class="center" /></p>
+
+<ul>
+  <li>그 중에 keep buffer cache에 자수 사용하는 데이터 block을 고정시킬 수 있습니다.</li>
+  <li>그러나 메모리 공간은 유한하기 때문에 많은 데이터를 keep buffer cache의 사이즈보다 커지게 될 경우 알고리즘에 의해 keep buffer cache에 있는 데이터가 비번하게 aging out 됩니다.</li>
+  <li>따라서 100% 고정된다고 볼 수 없습니다.</li>
+  <li>keep buffer cache의 size를 지정하는 경우 사용 가능하지만, SGA 사이즈의 여유 공간 유무에 따라 DB 재시작이 필요할 수 있습니다.</li>
+</ul>
+
+<h2 id="참고-사항">참고 사항</h2>
+
+<ul>
+  <li>buffer cache의 역할
+    <blockquote>
+      <ul>
+        <li>buffer cache는 disk에서 읽어온 데이터를 상주시키기 위해 사용하는 공간으로 disk I/O를 줄여 응답 속도를 높이고자 사용</li>
+      </ul>
+    </blockquote>
+  </li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/db_buffer.png?raw=true" alt="db_buffer" width="500" height="400" class="center" /></p>
+
+<ul>
+  <li>keep buffer cache 지정 방법(for DBA)</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">###</span> <span class="err">할당할</span> <span class="n">keep</span> <span class="n">buffer</span> <span class="k">cache</span><span class="err">의</span> <span class="err">공간이</span> <span class="n">SGA</span><span class="err">의</span> <span class="err">여유</span> <span class="err">공간보다</span> <span class="err">작은</span> <span class="err">경우</span><span class="p">(</span><span class="n">online</span> <span class="err">작업</span> <span class="err">가능</span><span class="p">)</span>
+<span class="k">alter</span> <span class="k">system</span> <span class="k">set</span> <span class="n">db_keep_cache_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">M</span> <span class="o">|</span> <span class="k">G</span><span class="p">]</span> <span class="k">scope</span> <span class="o">=</span> <span class="k">both</span><span class="p">;</span>
+
+<span class="o">###</span> <span class="err">할당할</span> <span class="n">keep</span> <span class="n">buffer</span> <span class="k">cache</span><span class="err">의</span> <span class="err">공간이</span> <span class="n">SGA</span><span class="err">의</span> <span class="err">여유</span> <span class="err">공간보다</span> <span class="err">큰</span> <span class="err">경우</span><span class="p">(</span><span class="n">shutdown</span> <span class="err">필요</span><span class="p">)</span>
+<span class="k">alter</span> <span class="k">system</span> <span class="k">set</span> <span class="n">sga_max_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">M</span><span class="o">|</span><span class="k">G</span><span class="p">]</span> <span class="k">scope</span> <span class="o">=</span> <span class="n">spfile</span><span class="p">;</span>
+<span class="k">alter</span> <span class="k">system</span> <span class="k">set</span> <span class="n">db_keep_cache_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">M</span> <span class="o">|</span> <span class="k">G</span><span class="p">]</span> <span class="k">scope</span> <span class="o">=</span> <span class="n">spfile</span><span class="p">;</span>
+<span class="n">shutdown</span>
+<span class="n">startup</span>
+
+<span class="o">###</span> <span class="err">테이블</span> <span class="o">/</span> <span class="err">인덱스</span> <span class="o">/</span> <span class="err">파티션</span> <span class="err">에</span> <span class="n">keep</span> <span class="n">buffer</span> <span class="err">사용하도록</span> <span class="err">지정</span>
+<span class="k">alter</span> <span class="k">table</span> <span class="err">테이블명</span> <span class="k">storage</span> <span class="p">(</span><span class="n">BUFFER_POOL</span> <span class="n">KEEP</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">index</span> <span class="err">인덱스명</span> <span class="k">storage</span> <span class="p">(</span><span class="n">BUFFER_POOL</span> <span class="n">KEEP</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">table</span> <span class="err">테이블명</span> <span class="k">modify</span> <span class="n">partition</span> <span class="err">파티션명</span> <span class="k">storage</span> <span class="p">(</span><span class="n">BUFFER_POOL</span> <span class="n">KEEP</span><span class="p">);</span>
+<span class="k">alter</span> <span class="k">index</span> <span class="err">인덱스명</span> <span class="k">modify</span> <span class="n">partition</span> <span class="err">파티션명</span> <span class="k">storage</span> <span class="p">(</span><span class="n">BUFFER_POOL</span> <span class="n">KEEP</span><span class="p">);</span>
+</code></pre></div></div>
+:ET

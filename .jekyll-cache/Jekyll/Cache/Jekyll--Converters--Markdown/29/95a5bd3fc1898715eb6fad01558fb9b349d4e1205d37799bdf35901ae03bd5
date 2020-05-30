@@ -1,0 +1,32 @@
+I"{	<h2 id="계정-패스워드-변경작업-시-기존-세션에-영향이-있나요">계정 패스워드 변경작업 시 기존 세션에 영향이 있나요?</h2>
+
+<ul>
+  <li>session은 이미 DB에 연결된 상태이기 때문에 패스워드 변경 작업을 해도 기존 session은 유지됩니다.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/connection_1.png?raw=true" alt="connection_1" /></p>
+
+<ul>
+  <li>그러나 웹서버에서 DB로 접근하는 connection 정보를 변경해줘야 신규 session이 DB 패스워드 변경 작업 이후 DB에 붙을 수 있습니다.</li>
+  <li>따라서 DB 패스워드 변경 이후 웹서버 restart가 필요하기 때문에 여러 대의 웹서버를 순차적으로 restart해서 변경을 하게 됩니다.</li>
+  <li>그렇지만 DB 패스워드 변경 이후 웹서버 restart 전에 신규 세션이 생길 경우 패스워드 invalid 에러가 떨어지게 됩니다.(ora-01017 invalid username/password logon denied)</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/connection_2.png?raw=true" alt="connection_2" /></p>
+
+<ul>
+  <li>따라서 서비스 계정을 2개로 분리해서 변경작업마다 계정만 교체해주면 이슈없이 해결 가능합니다.</li>
+  <li>왜냐하면 DB 패스워드 변경 후 user의 접근으로 신규 sessio이 필요하다면 웹서버 restart 하지 않은 서버들은 svc1 계정으로 DB접근 할 것이고 웹서버 restar된 계정들은 svc2 계정으로 DB접근을 할 것이기 때문입니다.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/connection_3.png?raw=true" alt="connection_3" /></p>
+
+<p><strong>정리</strong></p>
+<ul>
+  <li>패스워드 변경 작업 시 web server restart로 기존 세션이 끊어지기 때문에 영향이 없다고는 할 수 없습니다.</li>
+  <li>그러나 같은 서비스에 여러 대의 web server가 떠있기 때문에 순차적으로 web server restart를 진행한다면 서비스 상에는 이슈가 없는 것 처럼 보입니다.</li>
+  <li>패스워드 변경 작업 후 restart 안된 서버의 신규 세션은 invalid password 에러가 발생합니다.</li>
+  <li>서비스 계정을 두 개로 나눠서 사용한다면 invalid password는 발생하지 않게 할 수 있습니다.</li>
+</ul>
+
+:ET

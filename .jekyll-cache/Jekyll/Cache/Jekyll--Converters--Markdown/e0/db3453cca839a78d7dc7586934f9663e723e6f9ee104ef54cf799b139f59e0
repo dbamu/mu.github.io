@@ -1,0 +1,171 @@
+I"&J<h2 id="not-null-칼럼-추가가-online-중-가능할까요">NOT NULL 칼럼 추가가 online 중 가능할까요?</h2>
+
+<ul>
+  <li>온라인 중에 NOT NULL 칼럼 추가가 가능하지만 작업을 진행할 적절한 시간과 데이터 양을 고려해야 합니다.</li>
+  <li>그러나 여러 상황을 고려해서 작업이 진행되어야 합니다.
+    <ul>
+      <li>NOT NULL column을 추가하려는 table에 update, delete(작업 끝날 때까지 대기하게 됨.)가 많다면 이용자가 적은 시간(새벽)에 작업을 진행해야 합니다.</li>
+      <li>default 값을 지정 후 NOT NULL 칼럼을 추가할 경우 타 세션에서 해당 테이블에 대해 (select, insert, delete, update) 시 library cache lock이 잡히기 때문에 적절한 시간을 판단해서 진행해야 합니다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="테스트">테스트</h2>
+
+<p><strong>테이블에 데이터가 존재하지 않을 경우 테스트</strong></p>
+<ul>
+  <li>데이터가 없어서 문제 없이 not null 칼럼 추가 가능</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">create</span> <span class="k">table</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span><span class="p">(</span>
+<span class="n">aaa</span> <span class="n">number</span><span class="p">,</span>
+<span class="n">bbb</span> <span class="n">number</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+<span class="n">ccc</span> <span class="n">varchar2</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span>
+<span class="n">ddd</span> <span class="n">varchar2</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<span class="c1">-- drop table sangmuappo.not_nulltest;</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">dba_tab_columns</span> <span class="k">where</span> <span class="k">table_name</span> <span class="o">=</span> <span class="s1">'NOT_NULLTEST'</span><span class="p">;</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">ADD</span><span class="p">(</span><span class="n">eee</span> <span class="n">number</span> <span class="k">not</span> <span class="k">null</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><strong>테이블에 데이터가 존재할 경우 테스트</strong></p>
+<ul>
+  <li>한 건이라도 데이터가 있는 경우 칼럼을 추가할 수 없습니다.</li>
+  <li>NOT NULL 칼럼 추가 시 이미 존재하는 row에 추가된 칼럼 값을 지정해줄 수 없기 때문입니다.</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">insert</span> <span class="k">into</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">values</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">'1'</span><span class="p">,</span><span class="s1">'1'</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">commit</span><span class="p">;</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">ADD</span><span class="p">(</span><span class="n">fff</span> <span class="n">number</span> <span class="k">not</span> <span class="k">null</span><span class="p">);</span>
+
+<span class="n">ERROR</span> <span class="k">at</span> <span class="n">line</span> <span class="mi">1</span><span class="p">:</span>
+<span class="n">ORA</span><span class="o">-</span><span class="mi">01758</span><span class="p">:</span> <span class="k">table</span> <span class="n">must</span> <span class="n">be</span> <span class="n">empty</span> <span class="k">to</span> <span class="k">add</span> <span class="n">mandatory</span> <span class="p">(</span><span class="k">NOT</span> <span class="k">NULL</span><span class="p">)</span> <span class="k">column</span>
+</code></pre></div></div>
+
+<p><strong>추가할 수 있는 방법</strong></p>
+<ol>
+  <li>추가할 column에 default 값 선언</li>
+</ol>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">ADD</span> <span class="p">(</span><span class="n">fff</span> <span class="n">number</span> <span class="k">default</span> <span class="mi">0</span><span class="p">);</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span><span class="p">;</span>
+</code></pre></div></div>
+
+<ol>
+  <li>null로 생성 후 데이터를 넣고 다시 not null로 변경</li>
+</ol>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">ADD</span><span class="p">(</span><span class="n">hhh</span> <span class="n">number</span><span class="p">);</span>
+<span class="k">update</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">set</span> <span class="n">hhh</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">commit</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="k">COLUMN_NAME</span><span class="p">,</span><span class="n">DATA_TYPE</span><span class="p">,</span> <span class="n">decode</span><span class="p">(</span><span class="k">NULLABLE</span><span class="p">,</span> <span class="s1">'N'</span><span class="p">,</span> <span class="s1">'NOT NULL'</span><span class="p">)</span> <span class="k">as</span> <span class="nv">"NULL?"</span> <span class="k">from</span> <span class="n">dba_tab_columns</span> <span class="k">where</span> <span class="k">table_name</span> <span class="o">=</span> <span class="s1">'NOT_NULLTEST'</span><span class="p">;</span>
+<span class="k">COLUMN_NAME</span>          <span class="n">DATA_TYPE</span>  <span class="k">NULL</span><span class="o">?</span>
+<span class="c1">-------------------- ---------- --------</span>
+<span class="n">EEE</span>                  <span class="n">NUMBER</span>     
+<span class="n">DDD</span>                  <span class="n">VARCHAR2</span>   <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="n">CCC</span>                  <span class="n">VARCHAR2</span>
+<span class="n">BBB</span>                  <span class="n">NUMBER</span>     <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="n">AAA</span>                  <span class="n">NUMBER</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">MODIFY</span><span class="p">(</span><span class="n">eee</span> <span class="k">not</span> <span class="k">null</span><span class="p">);</span>
+
+<span class="k">select</span> <span class="k">COLUMN_NAME</span><span class="p">,</span><span class="n">DATA_TYPE</span><span class="p">,</span> <span class="n">decode</span><span class="p">(</span><span class="k">NULLABLE</span><span class="p">,</span> <span class="s1">'N'</span><span class="p">,</span> <span class="s1">'NOT NULL'</span><span class="p">)</span> <span class="k">as</span> <span class="nv">"NULL?"</span> <span class="k">from</span> <span class="n">dba_tab_columns</span> <span class="k">where</span> <span class="k">table_name</span> <span class="o">=</span> <span class="s1">'NOT_NULLTEST'</span><span class="p">;</span>
+<span class="k">COLUMN_NAME</span>          <span class="n">DATA_TYPE</span>  <span class="k">NULL</span><span class="o">?</span>
+<span class="c1">-------------------- ---------- --------</span>
+<span class="n">EEE</span>                  <span class="n">NUMBER</span>     <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="n">DDD</span>                  <span class="n">VARCHAR2</span>   <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="n">CCC</span>                  <span class="n">VARCHAR2</span>
+<span class="n">BBB</span>                  <span class="n">NUMBER</span>     <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="n">AAA</span>                  <span class="n">NUMBER</span>
+</code></pre></div></div>
+
+<p><strong>추가할 column에 default 값 선언 시 문제점</strong></p>
+<ul>
+  <li>타 세션에서 해당 테이블 작업 시  library cache lock이 걸려서 select, insert, update, delete 수행 안됨.</li>
+  <li>데이터 양이 많을 수록 시간이 길어지기 때문에 문제가 될 수 있음. = &gt; 세션이 계속 쌓이기 때문에</li>
+  <li>default를 지정한다는 것은 기존 row들에 칼럼을 추가하고 0으로 update 하는 것과 같음.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/library%20cache%20lock.jpg?raw=true" alt="library_cache_lock" /></p>
+
+<p><strong>null로 생성 후 데이터를 넣고 다시 not null로 변경 시 문제점</strong></p>
+<ul>
+  <li>TM lock이 걸려 다른 세션에서 update, delete 작업이 있을 경우 =&gt; 세션들이 기다리면서 wait 발생 =&gt; 세션 수 증가</li>
+  <li>따라서 데이터 양이 많고 테이블이 update, delete 작업이 많다면 not null로 생성하는 것은 무리.</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">create</span> <span class="k">table</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span><span class="p">(</span>
+<span class="n">aaa</span> <span class="n">number</span><span class="p">,</span>
+<span class="n">bbb</span> <span class="n">number</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+<span class="n">ccc</span> <span class="n">varchar2</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span>
+<span class="n">ddd</span> <span class="n">varchar2</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">SANGMUAPPO</span><span class="p">.</span><span class="n">NOT_NULLTEST</span> <span class="n">NOLOGGING</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">dba_tables</span> <span class="k">where</span> <span class="k">table_name</span> <span class="o">=</span> <span class="s1">'NOT_NULLTEST'</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span><span class="p">;</span>
+
+<span class="c1">-- 5천만건 데이터 입력</span>
+<span class="k">BEGIN</span>
+    <span class="k">FOR</span> <span class="n">i</span> <span class="k">IN</span> <span class="mi">1</span><span class="p">..</span><span class="mi">50000000</span>
+    <span class="n">LOOP</span>
+        <span class="k">insert</span> <span class="cm">/*+ NOLOGGING */</span> <span class="k">into</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">values</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">);</span>
+        <span class="n">if</span> <span class="k">mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">then</span>
+            <span class="k">commit</span><span class="p">;</span>
+        <span class="k">end</span> <span class="n">if</span><span class="p">;</span>
+    <span class="k">END</span> <span class="n">LOOP</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+<span class="o">/</span>
+
+<span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="n">bytes</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span> <span class="k">from</span> <span class="n">dba_Segments</span> <span class="k">where</span> <span class="n">segment_name</span> <span class="o">=</span> <span class="s1">'NOT_NULLTEST'</span><span class="p">;</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">ADD</span><span class="p">(</span><span class="n">eee</span> <span class="n">number</span><span class="p">);</span>
+
+<span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">SANGMUAPPO</span><span class="p">.</span><span class="n">NOT_NULLTEST</span> <span class="n">NOLOGGING</span><span class="p">;</span>
+
+<span class="k">update</span> <span class="cm">/*+ NOLOGGING */</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">set</span>  <span class="n">eee</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">commit</span><span class="p">;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>다른 세션에서 update 중인 테이블에 대해 delete insert 작업 진행하면 TM lock 발생!!</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/TM_lock.jpg?raw=true" alt="tm_lock" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- session1</span>
+<span class="k">update</span> <span class="cm">/*+ NOLOGGING */</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">set</span>  <span class="n">aaa</span> <span class="o">=</span> <span class="mi">50000001</span> <span class="k">where</span> <span class="n">aaa</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+
+<span class="c1">-- session2</span>
+<span class="k">update</span> <span class="cm">/*+ NOLOGGING */</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">set</span>  <span class="n">aaa</span> <span class="o">=</span> <span class="mi">50000003</span> <span class="k">where</span> <span class="n">aaa</span> <span class="o">=</span> <span class="mi">10001</span><span class="p">;</span>
+
+<span class="c1">-- session3</span>
+<span class="k">update</span> <span class="cm">/*+ NOLOGGING */</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">set</span>  <span class="n">aaa</span> <span class="o">=</span> <span class="mi">50000004</span> <span class="k">where</span> <span class="n">aaa</span> <span class="o">=</span> <span class="mi">10002</span><span class="p">;</span>
+
+<span class="c1">-- session4</span>
+<span class="k">delete</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">not_nulltest</span> <span class="k">where</span> <span class="n">aaa</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="n">s</span><span class="p">.</span><span class="n">sid</span><span class="p">,</span> <span class="nb">serial</span><span class="o">#</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">status</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">schemaname</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="k">type</span><span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">id1</span><span class="p">,</span> <span class="n">o</span><span class="p">.</span><span class="n">object_id</span> <span class="p">,</span> <span class="n">object_name</span>
+  <span class="k">from</span> <span class="n">v</span><span class="err">$</span><span class="k">session</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="err">$</span><span class="k">lock</span> <span class="n">l</span><span class="p">,</span> <span class="n">dba_objects</span> <span class="n">o</span>
+ <span class="k">where</span> <span class="n">s</span><span class="p">.</span><span class="n">sid</span> <span class="o">=</span> <span class="n">l</span><span class="p">.</span><span class="n">sid</span>
+   <span class="k">and</span> <span class="n">l</span><span class="p">.</span><span class="n">id1</span> <span class="o">=</span> <span class="n">o</span><span class="p">.</span><span class="n">object_id</span>
+   <span class="k">and</span> <span class="n">object_name</span> <span class="o">=</span> <span class="s1">'NOT_NULLTEST'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><strong>undo 영역 사용량 급증 문제</strong></p>
+<ul>
+  <li>NOT NULL 칼럼 추가 시 테이블에 데이터양이 많을 경우 undo 영역 사용량이 급증하는 문제도 존재합니다.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/undo_usage.jpg?raw=true" alt="undo_usage" /></p>
+:ET

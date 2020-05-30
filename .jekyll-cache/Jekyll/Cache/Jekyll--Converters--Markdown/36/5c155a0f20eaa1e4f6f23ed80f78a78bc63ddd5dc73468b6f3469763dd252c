@@ -1,0 +1,72 @@
+I"�<h3 id="데이터베이스-성능-분석-및-튜닝">데이터베이스 성능 분석 및 튜닝</h3>
+
+<ul>
+  <li>데이스베이스 성능 문제는 <strong>한 두가지 핵심 원인</strong> 때문에 발생</li>
+  <li>DB 성능 분석은 <strong>정확한 원인</strong>을 빠르게 찾는 것이 큰 목적
+    <ul>
+      <li>인과 관계를 파악</li>
+      <li>성능 분석에 필요한 데이터의 선별, 수집, 분석 능력 중요</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="데이터베이스-성능-분석-및-튜닝을-위한-데이터-수집-방법">데이터베이스 성능 분석 및 튜닝을 위한 데이터 수집 방법</h3>
+<ul>
+  <li>AWR 데이터 이용</li>
+  <li>오라클 metaData, Dynamic View, Dictionary 검색</li>
+  <li>SQL Trace File 생성</li>
+</ul>
+
+<h3 id="awr-개념">AWR 개념</h3>
+<ul>
+  <li>위의 목적을 위해 AWR(Automatic Workload Repository) 활용</li>
+  <li>oracle 8i version부터 제공된 STATSPACK과 유사하나 수집 범위가 확장</li>
+  <li>AWR 동작
+    <ul>
+      <li>데이터베이스 생성 후 설치 없이 자동 수행</li>
+      <li>메모리 모니터링 <strong>background process(MMON, MMNL)</strong>에 의해 데이터 수집 후 <strong>SYSAUX</strong> 테이블스페이스에 저장</li>
+      <li>snapshot interval은 default 1시간, 보관기간은 7일이고 수집 및 보관 주기의 변경 가능.</li>
+      <li>AWR 데이터 조회는 WRH$<em>*, WRM$</em><em>, DBA_HIST_</em>를 통해 조회 가능.</li>
+    </ul>
+
+    <p><img src="https://github.com/lght2000/ssang.github.io/blob/master/img/Oracle-AWR-Report.png?raw=true" alt="" width="700" height="500" class="center" /></p>
+  </li>
+  <li>AWR 수집 데이터
+    <ul>
+      <li>데이터베이스 대기 이벤트 정보 및 통계 정보</li>
+      <li>그룹화된 DB 사용 부하의 통계 수치(DBA_HIST_SYSTEMETRIC_SUMMARY, DBA_HIST_SYS_TIME_MODEL)</li>
+      <li>SQL 수행 통계 정보 및 실행 계획</li>
+    </ul>
+  </li>
+  <li>AWR 데이터의 활용
+    <ul>
+      <li>DB 상태 파악
+        <ul>
+          <li>DB의 문제 발생 여부 및 운영 상태 파악</li>
+          <li>dynamic view, dictionary 정보로 실시간 DB 상태 파악 가능하지만 특정 구간 사이의 DB 상태 파악 불가</li>
+          <li>시점 데이터를 저장하는 AWR을 이용해서 원하는 구간의 DB 상태 파악 가능.</li>
+        </ul>
+      </li>
+      <li>성능 문제 해결
+        <ul>
+          <li>AWR report 및 ASH 생성 스크립트 활용</li>
+        </ul>
+      </li>
+      <li>성능 추세 분석
+        <ul>
+          <li>과거 데이터의 추세 분석을 통해 미래 예측</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>statspack
+    <ul>
+      <li>Oracle 8.1.6이상에서 사용 가능</li>
+      <li>AWR이 나오기 전인 oracle 10g 이전에 사용됨.</li>
+      <li>수집 정보 : DB 대기 이벤트 및 통계 정보, 시스템 통계 정보, 데이터베이스 부하 정보, SQL 수행 정보, active session\</li>
+      <li>좀 더 자세한 차이는  <a href="http://wiki.gurubee.net/pages/viewpage.action?pageId=30965836">링크</a> 참조.</li>
+    </ul>
+  </li>
+</ul>
+
+:ET

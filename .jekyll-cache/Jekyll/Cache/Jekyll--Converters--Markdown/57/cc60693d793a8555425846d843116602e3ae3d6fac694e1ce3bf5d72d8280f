@@ -1,0 +1,204 @@
+I"�!<h2 id="sequnece-순서는-항상-보장되나요">sequnece 순서는 항상 보장되나요?</h2>
+
+<ul>
+  <li>sequence 순서가 항상 보장되는 것은 아닙니다.</li>
+</ul>
+
+<h2 id="상황에-따른-테스트">상황에 따른 테스트</h2>
+
+<p><strong>rollback된 경우</strong></p>
+<ul>
+  <li>insert 후 rollback 한 뒤에 다시 insert 하면 sequence 발번이 2번이 됨.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/seq_nocache_rollback_1.jpg?raw=true" alt="1" /></p>
+
+<p><strong>다른 테이블에서 동일 시퀀스를 사용하는 경우</strong></p>
+<ul>
+  <li>test_seq_tab 테이블과 test_seq_tab2 테이블에서 동일 시퀀스 test_seq를 사용하는 경우</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/seq_use_other_table_2.jpg?raw=true" alt="2" /></p>
+
+<p><strong>RAC 구조인데 noorder인 경우</strong></p>
+<ul>
+  <li>
+    <p>rac 구조인데 sequence  옵션이 noorder인 경우 + 각 node에서 insert 수행 시</p>
+  </li>
+  <li>
+    <p>node1 에서 insert</p>
+  </li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_noorder_3.jpg?raw=true" alt="3" /></p>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_noorder2_4.jpg?raw=true" alt="4" /></p>
+
+<ul>
+  <li>node2에서 insert</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_noorder3_5.jpg?raw=true" alt="5" /></p>
+
+<ul>
+  <li>commit 후 node 1에서 조회.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_noorder4_6.jpg?raw=true" alt="6" /></p>
+
+<p><strong>(참고)RAC 구조인데 order인 경우는 순서 보장</strong></p>
+<ul>
+  <li>node1에서 테스트</li>
+  <li>두번 째 조회는 node1에서 데이터를 최초에 insert 후 조회한 결과</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_order_case7.jpg?raw=true" alt="7" /></p>
+
+<ul>
+  <li>두번 째 insert는 node2 진행 후 수행됨.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_order_case28.jpg?raw=true" alt="8" /></p>
+
+<ul>
+  <li>node2에서 테스트</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_order_case3_9.jpg?raw=true" alt="9" /></p>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_order_case4_10.jpg?raw=true" alt="10" /></p>
+
+<ul>
+  <li>commit 후 node1에서 조회</li>
+  <li>last_number 증가하지 않음.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_order_case_5_11.jpg?raw=true" alt="11" /></p>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/rac_order_case6_12.jpg?raw=true" alt="12" /></p>
+
+<p><strong>sequence cache 옵션 사용하는데 library cache flush 되거나 시스템이 abort 된 경우</strong></p>
+<ul>
+  <li>node1에서 수행</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/library_cache_flush1_13.jpg?raw=true" alt="13" /></p>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/library_cache_flush2_14.jpg?raw=true" alt="14" /></p>
+
+<ul>
+  <li>insert 전 조회된 데이터는 flush shared_pool 전에 가지고 있던 데이터</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/library_cache_flush3_15.jpg?raw=true" alt="15" /></p>
+
+<ul>
+  <li>flush 후 insert 한 뒤 조회한 sequence last_number를 보면 21→ 31로 증가한 것을 볼 수 있음.
+    <blockquote>
+      <p>cache 영역에 있던 발번된 시퀀스가 메모리에서 사라지면서 sequence는 그 이후 번호부터 다시 발번을 수행했기 때문</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/library_cache_flush4_16.jpg?raw=truee" alt="16" /></p>
+
+<p><strong>sequence cache 옵션 및 noorder 옵션을 사용하고 RAC 구조인데 library cache flush 되거나 시스템이 abort 된 경우</strong></p>
+<ul>
+  <li>바로 위의 사례와 유사함.</li>
+  <li>node1에서 insert 수행</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush_17.jpg?raw=true" alt="17" /></p>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush2_18.jpg?raw=true" alt="18" /></p>
+
+<ul>
+  <li>node2에서 insert 수행</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush3_19.jpg?raw=true" alt="19" /></p>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush4_20.jpg?raw=true" alt="20" /></p>
+
+<ul>
+  <li>node1에서 shared_pool flush 수행</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush5_21.jpg?raw=true" alt="21" /></p>
+
+<ul>
+  <li>node1에서 insert 수행</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush6_22.jpg?raw=true" alt="22" /></p>
+
+<ul>
+  <li>node2에서 insert 수행</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_flush7_23.jpg?raw=true" alt="23" /></p>
+
+<ul>
+  <li>node1은 발번된게 1 - 10까지 였으나 flush 하면서 21 - 30으로 바뀜 but node2는 flush하지 않았기 때문에 바로 다음 수인 12가 insert 됨.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/cache_rac_noorder_fulsh8_24.jpg?raw=true" alt="24" /></p>
+
+<p><strong>system이 실패한 경우</strong></p>
+<ul>
+  <li>AA가 primary key로 아래와 같이 4개의 값이 들어있을 때 신규로 생성한 seq를 가지고 insert 한 경우</li>
+  <li>제약 조건으로 인해 error가 발생 but 시퀀스는 발번되어 버린 상태</li>
+  <li>따라서 다시 insert 수행 시 2가 insert됨.</li>
+  <li>즉, 시스템 제약 조건으로 인해 실패한 경우에도 시퀀스 번호가 순서 보장을 하지 않음.</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/DB_error_sequencefail_25.jpg?raw=true" alt="25" /></p>
+
+<h2 id="참고-사항">참고 사항</h2>
+
+<ul>
+  <li>oracle 운영 상 RAC 구조이기는 하지만 node마다 서비스되는게 다르기 때문에 sequence생성 시 noorder 옵션을 주도록 권장을 하고 있습니다.</li>
+  <li>cache 옵션을 주면 오히려 순서를 보장할 수 없기 때문에 문제가 된다고 하지만 트래픽이 많은 서비스에서 부하를 줄일 수 있는 방법이기 때문에 권장합니다.(default 20)
+    <blockquote>
+      <ul>
+        <li>제약 조건을 깨지는 않음.</li>
+      </ul>
+    </blockquote>
+  </li>
+</ul>
+
+<p><strong>sequence 란?</strong></p>
+<ul>
+  <li>
+    <p>유일한 값을 순차적이면서 연속적으로 만들어주기 위해서 사용되는 객체</p>
+  </li>
+  <li>sequence 기능
+    <blockquote>
+      <ul>
+        <li>자동으로 유일번호 생성</li>
+        <li>여러 table에서 사용 가능</li>
+        <li>주로 primary key를 위로 사용</li>
+        <li>memory에 cache하면 sequence 값을 access하는 효율성을 향상</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>sequence cache의 이점 및 단점
+    <blockquote>
+      <ul>
+        <li>원하는 숫자만큼 미리 만들어 shared pool의 library Cache에 올려둔다.</li>
+        <li>즉, Cache가 저장된 수 만큼 Disk I/O가 발생하지 않는다.</li>
+        <li>그러나 library Cache가 날아가면 이미 발번한 sequence 값들도 날아가게 되고 sequence 순서가 깨질 수 있음.(cache된 이후 값이 다시 발번되기 때문)</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>sequence nocache 시 오라클 내부동작 구조</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/seq_concept_26.png?raw=true" alt="26" /></p>
+
+<ul>
+  <li>sequence cache 시 오라클 내부동작 구조</li>
+</ul>
+
+<p><img src="https://oss.navercorp.com/OracleDBA/developer_FAQ/blob/master/assets/images/seq_concept_27.png?raw=true" alt="27" /></p>
+:ET

@@ -1,0 +1,67 @@
+I"�<h2 id="일자를-문자열로-넣어도-될까요">일자를 문자열로 넣어도 될까요?</h2>
+
+<ul>
+  <li>테이블의 칼럼이 date type일 때 일자를 문자열로 넣으면 아래와 같은 에러가 떨어집니다.
+    <blockquote>
+      <ul>
+        <li>ORA-01861: literal does not match format string</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>
+    <p>따라서, to_date() 함수를 이용해서 변환해줘야 합니다.</p>
+  </li>
+  <li>테이블의 칼럼이 문자열로 되어있다면?
+    <blockquote>
+      <ul>
+        <li>조회가능합니다.</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>그러나 표준상 date type을 사용해서 날짜를 저장하기 때문에 불가능하다고 보시면 됩니다.</li>
+  <li>또는 to_date()함수를 이용해서 변환이 필요합니다.</li>
+</ul>
+
+<h2 id="테스트">테스트</h2>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- 테이블의 칼럼이 date 타입일 경우</span>
+<span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">TEST_PARTITION2</span> <span class="k">where</span> <span class="n">regdate</span> <span class="o">=</span> <span class="s1">'2018/01/10 11:48:00'</span><span class="p">;</span>
+<span class="n">ORA</span><span class="o">-</span><span class="mi">01861</span><span class="p">:</span> <span class="n">literal</span> <span class="n">does</span> <span class="k">not</span> <span class="k">match</span> <span class="n">format</span> <span class="n">string</span>
+
+<span class="c1">-- 조회 가능</span>
+<span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">TEST_PARTITION2</span> <span class="k">where</span> <span class="n">regdate</span> <span class="o">=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2018/01/10 11:48:00'</span><span class="p">,</span> <span class="s1">'YYYY/MM/DD HH24:MI:SS'</span><span class="p">);</span>
+
+<span class="c1">-- 테이블의 칼럼이 varchar2 타입일 경우</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">date_test</span>
+<span class="p">(</span>
+   <span class="n">co1</span> <span class="nb">date</span><span class="p">,</span>
+   <span class="n">col2</span> <span class="n">varchar2</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">date_test</span> <span class="k">where</span> <span class="n">co1</span> <span class="o">=</span> <span class="s1">'2019/11/19 19:17:52'</span><span class="p">;</span>
+<span class="n">ORA</span><span class="o">-</span><span class="mi">01861</span><span class="p">:</span> <span class="n">literal</span> <span class="n">does</span> <span class="k">not</span> <span class="k">match</span> <span class="n">format</span> <span class="n">string</span>
+
+<span class="c1">-- 조회 가능</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">date_test</span> <span class="k">where</span> <span class="n">col2</span> <span class="o">=</span> <span class="s1">'2018/01/10 11:48:00'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h2 id="참고사항">참고사항</h2>
+
+<ul>
+  <li>연산은 어떻게 하지?</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">칼럼이</span> <span class="n">varchar2</span> <span class="err">타입</span> <span class="o">/</span> <span class="nb">date</span> <span class="err">타입에</span> <span class="err">상관없이</span> <span class="err">연산은</span> <span class="err">가능하나</span> <span class="err">함수</span> <span class="err">이용이</span> <span class="err">필요합니다</span><span class="p">.</span>
+
+
+<span class="c1">-- co1은 date 타입일 경우 아래와 같이 연산하면 하루 후의 값이 출력</span>
+<span class="k">select</span> <span class="n">co1</span> <span class="o">+</span><span class="mi">1</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">date_test</span><span class="p">;</span>
+
+
+<span class="c1">-- col2는 varchar2 타입인데 위와 같이 사용할 경우 에러 발생</span>
+<span class="c1">-- 따라서 아래와 같이 to_date 함수로 변환 후 연산해야 원하는 결과가 나옵니다.</span>
+<span class="k">select</span> <span class="n">to_date</span><span class="p">(</span><span class="n">col2</span><span class="p">,</span> <span class="s1">'YYYY/MM/DD HH24:MI:SS'</span><span class="p">)</span> <span class="o">+</span><span class="mi">1</span> <span class="k">from</span> <span class="n">sangmuappo</span><span class="p">.</span><span class="n">date_test</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+:ET

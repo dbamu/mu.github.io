@@ -1,0 +1,63 @@
+I"<h2 id="fetchsize는-무엇을-의미하나요">fetchsize는 무엇을 의미하나요?</h2>
+
+<p><strong>fetchsize란?</strong></p>
+<ul>
+  <li>결과 집합을 전송할 때, 전체 데이터를 연속적으로 처리하지 않고 사용자로부터 Fetch Call이 있을때마다 일정량씩 나누어서 전송하는 것을 의미합니다.</li>
+  <li>즉, DB에서 결과 값 중 한 번에 가져올 row수를 의미합니다.</li>
+  <li>OLTP환경 등 일부 데이터만 먼저 보여지고자 할때 유용하게 사용할 수 있습니다.</li>
+  <li>Oracle JDBC의 default FetchSize는 10입니다.</li>
+  <li>sqlplus에서 default fetchsize는 15입니다.</li>
+</ul>
+
+<h2 id="부가-설명">부가 설명</h2>
+
+<p><strong>fetch size 조절</strong></p>
+<ul>
+  <li>Query 자체에는 문제가 없을지라도 한 번 가져올 때 10개만 가져오다보니 query의 결과로 가져오는 Data Entry 개수가 많을 경우,  DB를 방문하는 횟수가 증가하면서 Query 실행시간은 빠른데 JDBC side에서 느려질 수 있습니다.</li>
+  <li>fetchsize를 키울수록 Fetch Count는 횟수가 줄고 더불어 Block I/O까지 줄어든다.</li>
+</ul>
+
+<p><strong>fetch size 조절 방법</strong></p>
+<ul>
+  <li>SQLPLUS에서 조절하는 방법(FOR DBA)
+    <blockquote>
+      <ul>
+        <li>set arraysize row수</li>
+        <li>arraysize Is the number of rows fetched at one time. The default value is 15. The allowed range is from 1 to 5000.</li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>JAVA 프로그램에서 ArraySize를 조정
+    <blockquote>
+      <ul>
+        <li>ResultSet에 fetchSize 값을 조정하던가  Statement level에서도 설정해 줄 수 있다.</li>
+      </ul>
+    </blockquote>
+  </li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">"select id,pw from customer"</span><span class="o">;</span>
+<span class="nc">PreparedStatment</span> <span class="n">stmt</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatment</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span> 
+<span class="nc">Stmt</span><span class="o">.</span><span class="na">setFetchSize</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span> <span class="o">--</span> <span class="n">statement</span> <span class="n">level에서</span> <span class="n">조정</span>
+<span class="nc">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+<span class="c1">// rs.setFetchSize(100); -- ResultSet에서 조정할 수도 있다.</span>
+
+<span class="k">while</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">()){</span>
+<span class="o">......</span>
+<span class="o">}</span>
+
+<span class="n">rs</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="n">stmt</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p><strong>SQL gateway에서 조절 방법</strong></p>
+<ul>
+  <li>dbip2를 통해 신청합니다.
+    <blockquote>
+      <ul>
+        <li>SQL Gateway 권한 요청 =&gt; 사용자설정 부분의 “최대조회건수”를 변경합니다.</li>
+      </ul>
+    </blockquote>
+  </li>
+</ul>
+:ET
