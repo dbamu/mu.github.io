@@ -1,0 +1,12 @@
+I"�<h3 id="awr-정보-검색-보고서-생성">AWR 정보 검색 보고서 생성</h3>
+<ul>
+  <li>awrinfo.sql을 실행하면 AWR에 저장된 정보를 확인할 수 있음.</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="o">@?/</span><span class="n">rdbms</span><span class="o">/</span><span class="k">admin</span><span class="o">/</span><span class="n">awrinfosql</span>
+
+
+
+</code></pre></div></div>
+:ET

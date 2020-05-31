@@ -165,4 +165,42 @@ Using the report name awr_comp_test.html
 
 ```
 
+**비교 결과**
+
+![](https://github.com/lght2000/mu.github.io/blob/master/assets/images/awr_comp.PNG?raw=true){: width="600" height="500"  .center}
+
+
+**패지지로 비교 보고서 생성**
+- 대량으로 생성할 때 사용
+
+| 프로시저             | 설명                                      |
+|----------------------|-------------------------------------------|
+| AWR_DIFF_REPORT_TEXT | 텍스트 형식으로 AWR DB 비교 보고서를 생성 |
+| AWR_DIFF_REPOST_HTML | 웹 문서 형식으로 DB 비교 보고서를 생성    |
+
+
+```sql
+
+SELECT OUTPUT
+FROM  TABLE(DBMS_WORKLOAD_REPOSITORY.AWR_DIFF_REPOST_HTML(
+                      :DBID1, :INST_ID1, :BEGIN_SNAP1, :END_SNAP1,
+                      :DBID2, :INST_ID2, :BEGIN_SNAP2, :END_SNAP2));
+
+SELECT OUTPUT
+FROM  TABLE(DBMS_WORKLOAD_REPOSITORY.AWR_DIFF_REPOST_TEXT(
+                      :DBID1, :INST_ID1, :BEGIN_SNAP1, :END_SNAP1,
+                      :DBID2, :INST_ID2, :BEGIN_SNAP2, :END_SNAP2));
+
+```
+
+| 항목         | 설명                         |
+|--------------|------------------------------|
+| :DBID1       | 첫 번째 구간 데이터베이스 ID |
+| :INST_ID1    | 첫 번째 구간 인스턴스 번호   |
+| :BEGIN_SNAP1 | 첫 번째 구간 시작 스냅 ID    |
+| :END_SNAP1   | 첫 번째 구간 종료 스냅 ID    |
+| :DBID2       | 두 번째 구간 데이터베이스 ID |
+| :INST_ID2    | 두 번째 구간 인스턴스 번호   |
+| :BEGIN_SNAP2 | 두 번째 구간 시작 스냅 ID    |
+| :END_SNAP2   | 두 번째 구간 종료 스냅 ID    |
 

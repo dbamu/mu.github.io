@@ -1,0 +1,10 @@
+I"�<h3 id="awr-sql-보고서-생성">AWR SQL 보고서 생성</h3>
+<ul>
+  <li>비효율적으로 수행되는 SQL에 대한 전체 구문 및 실행 계획과 실행 통계 정보를 분석해야할 경우에 사용.</li>
+  <li>awrsqprt.sql 또는 awrsqprti.sql 활용.</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+</code></pre></div></div>
+:ET

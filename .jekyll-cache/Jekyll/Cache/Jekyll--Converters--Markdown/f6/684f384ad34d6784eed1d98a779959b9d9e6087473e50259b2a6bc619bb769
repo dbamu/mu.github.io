@@ -1,0 +1,351 @@
+I"S�<h3 id="awr-정보-검색-보고서-생성">AWR 정보 검색 보고서 생성</h3>
+<ul>
+  <li>awrinfo.sql을 실행하면 AWR에 저장된 정보를 확인할 수 있음.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>구분</th>
+      <th>항목</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AWR 스냅샷 정보</td>
+      <td>DB 유저별 SYSAUX 테이블스페이스 사용 정보<br />기능별 SYSAUX 테이블스페이스 사용 정보<br />일반 DB 유저의 SYSAUX 테이블스페이스 사용 정보<br />일별과 주별 AWR 공간 사용 정보<br />AWR의 구성요소별 SYSAUX 테이블스페이스 사용 정보<br />비AWR의 구성요소별 SYSAUX 테이블스페이스 사용 정보<br />최근 50개의 AWR 스냅샷 수행 정보<br />AWR 수행 시 에러 발생 정보<br />AWR 설정 정보(수행 주기, 보존 기간)<br />AWR 구성요소별 각 스냅샷에 저장된 행의 수<br />AWR 구성요소별 스냅샷에 저장된 평균 행의 수<br />AWR 스냅샷에 의해 수집되고 사용된 DB 구성요소의 개수</td>
+    </tr>
+    <tr>
+      <td>권고자 구성정보</td>
+      <td>권고자 관련 작업 수행 결과 (최근 50개)<br />권고자 관련 작업 수행 결과 (가장 오래된 5개)<br />에러가 발생한 권고자 관련 작업의 상세 정보 (최근 50개)</td>
+    </tr>
+    <tr>
+      <td>ASH 사용정보</td>
+      <td>ASH 통계 정보<br />ASH 기록 세션 중 서버 프로세스와 백그라운드 프로세스 비율</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="o">@?/</span><span class="n">rdbms</span><span class="o">/</span><span class="k">admin</span><span class="o">/</span><span class="n">awrinfo</span><span class="p">.</span><span class="k">sql</span>
+
+
+<span class="n">Specify</span> <span class="n">the</span> <span class="n">Report</span> <span class="n">File</span> <span class="n">Name</span>
+<span class="o">~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="n">The</span> <span class="k">default</span> <span class="n">report</span> <span class="n">file</span> <span class="n">name</span> <span class="k">is</span> <span class="n">awrinfo</span><span class="p">.</span><span class="n">txt</span><span class="p">.</span>  <span class="k">To</span> <span class="n">use</span> <span class="n">this</span> <span class="n">name</span><span class="p">,</span>
+<span class="n">press</span> <span class="o">&lt;</span><span class="k">return</span><span class="o">&gt;</span> <span class="k">to</span> <span class="k">continue</span><span class="p">,</span> <span class="n">otherwise</span> <span class="n">enter</span> <span class="n">an</span> <span class="n">alternative</span><span class="p">.</span>
+
+<span class="n">Enter</span> <span class="n">value</span> <span class="k">for</span> <span class="n">report_name</span><span class="p">:</span> <span class="n">awrinfo</span><span class="p">.</span><span class="n">txt</span>
+
+<span class="k">Using</span> <span class="n">the</span> <span class="n">report</span> <span class="n">name</span> <span class="n">awrinfo</span><span class="p">.</span><span class="n">txt</span>
+<span class="k">No</span> <span class="n">errors</span><span class="p">.</span>
+<span class="k">No</span> <span class="n">errors</span><span class="p">.</span>
+<span class="o">~~~~~~~~~~~~~~~</span>
+<span class="n">AWR</span> <span class="n">INFO</span> <span class="n">Report</span>
+<span class="o">~~~~~~~~~~~~~~~</span>
+
+
+</code></pre></div></div>
+
+<p><strong>아래와 같은 정보를 보여줌</strong></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="p">[</span><span class="n">oracle</span><span class="p">]</span><span class="err">$</span> <span class="n">cat</span> <span class="n">awrinfo</span><span class="p">.</span><span class="n">txt</span>
+<span class="o">~~~~~~~~~~~~~~~</span>
+<span class="n">AWR</span> <span class="n">INFO</span> <span class="n">Report</span>
+<span class="o">~~~~~~~~~~~~~~~</span>
+
+<span class="n">Report</span> <span class="k">generated</span> <span class="k">at</span>                                                                                           
+<span class="mi">16</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">43</span> <span class="k">on</span> <span class="n">May</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">2020</span> <span class="p">(</span> <span class="n">Sunday</span> <span class="p">)</span> <span class="k">in</span> <span class="n">Timezone</span> <span class="o">+</span><span class="mi">09</span><span class="p">:</span><span class="mi">00</span>                                                        
+                                                                                                              
+
+<span class="n">Warning</span><span class="p">:</span> <span class="n">Non</span> <span class="k">Default</span> <span class="n">AWR</span> <span class="n">Setting</span><span class="o">!</span>                                                                             
+<span class="c1">--------------------------------------------------------------------------------                              </span>
+<span class="n">Snapshot</span> <span class="n">interval</span> <span class="k">is</span> <span class="mi">60</span> <span class="n">minutes</span> <span class="k">and</span> <span class="n">Retention</span> <span class="k">is</span> <span class="mi">8</span> <span class="n">days</span>                                                       
+
+
+       <span class="n">DB_ID</span> <span class="n">DB_NAME</span>   <span class="n">HOST_PLATFORM</span>                             <span class="n">INST</span> <span class="n">STARTUP_TIME</span>      <span class="n">LAST_ASH_SID</span> <span class="n">PAR</span>      
+<span class="c1">------------ --------- ---------------------------------------- ----- ----------------- ------------ ---      </span>
+<span class="o">*</span> <span class="mi">236423250</span>  <span class="n">EDUALL</span>    <span class="n">cedu02</span><span class="p">.</span><span class="n">dbinfra</span> <span class="o">-</span> <span class="n">Linux</span> <span class="n">x86</span> <span class="mi">64</span><span class="o">-</span><span class="nb">bit</span>            <span class="mi">1</span> <span class="mi">10</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">55</span> <span class="p">(</span><span class="mi">03</span><span class="o">/</span><span class="mi">17</span><span class="p">)</span>      <span class="mi">72375198</span> <span class="k">NO</span>       
+
+<span class="o">########################################################</span>
+<span class="p">(</span><span class="n">I</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">Snapshots</span> <span class="n">Information</span>
+<span class="o">########################################################</span>
+
+<span class="o">*****************************************************</span>
+<span class="p">(</span><span class="mi">1</span><span class="n">a</span><span class="p">)</span> <span class="n">SYSAUX</span> <span class="k">usage</span> <span class="o">-</span> <span class="k">Schema</span> <span class="n">breakdown</span> <span class="p">(</span><span class="n">dba_segments</span><span class="p">)</span>
+<span class="o">*****************************************************</span>
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Total</span> <span class="n">SYSAUX</span> <span class="k">size</span>                        <span class="mi">830</span><span class="p">.</span><span class="mi">0</span> <span class="n">MB</span> <span class="p">(</span> <span class="mi">3</span><span class="o">%</span> <span class="k">of</span> <span class="mi">32</span><span class="p">,</span><span class="mi">768</span><span class="p">.</span><span class="mi">0</span> <span class="n">MB</span> <span class="k">MAX</span> <span class="k">with</span> <span class="n">AUTOEXTEND</span> <span class="k">ON</span> <span class="p">)</span>              
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="k">Schema</span>  <span class="n">SYS</span>          <span class="n">occupies</span>            <span class="mi">459</span><span class="p">.</span><span class="mi">8</span> <span class="n">MB</span> <span class="p">(</span>  <span class="mi">55</span><span class="p">.</span><span class="mi">4</span><span class="o">%</span> <span class="p">)</span>                                                
+                                                                                                       
+<span class="o">********************************************************</span>                                                      
+<span class="p">(</span><span class="mi">1</span><span class="n">b</span><span class="p">)</span> <span class="n">SYSAUX</span> <span class="n">occupants</span> <span class="k">space</span> <span class="k">usage</span> <span class="p">(</span><span class="n">v</span><span class="err">$</span><span class="n">sysaux_occupants</span><span class="p">)</span>                                                        
+<span class="o">********************************************************</span>                                                      
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Occupant</span> <span class="n">Name</span>        <span class="k">Schema</span> <span class="n">Name</span>               <span class="k">Space</span> <span class="k">Usage</span>                                                  
+<span class="o">|</span> <span class="c1">-------------------- -------------------- ----------------                                                  </span>
+<span class="o">|</span> <span class="n">SM</span><span class="o">/</span><span class="n">AWR</span>               <span class="n">SYS</span>                          <span class="mi">216</span><span class="p">.</span><span class="mi">5</span> <span class="n">MB</span>                                                  
+<span class="o">|</span> <span class="n">SM</span><span class="o">/</span><span class="n">OPTSTAT</span>           <span class="n">SYS</span>                          <span class="mi">130</span><span class="p">.</span><span class="mi">1</span> <span class="n">MB</span>                                                  
+<span class="o">|</span> <span class="n">XDB</span>                  <span class="n">XDB</span>                          <span class="mi">126</span><span class="p">.</span><span class="mi">9</span> <span class="n">MB</span>                                                  
+<span class="o">|</span> <span class="n">SDO</span>                  <span class="n">MDSYS</span>                         <span class="mi">66</span><span class="p">.</span><span class="mi">6</span> <span class="n">MB</span>                                                  
+<span class="o">|</span> <span class="n">EM</span>                   <span class="n">SYSMAN</span>                        <span class="mi">48</span><span class="p">.</span><span class="mi">8</span> <span class="n">MB</span>                                                  
+                                                                                                      
+
+<span class="o">******************************************</span>
+<span class="p">(</span><span class="mi">1</span><span class="k">c</span><span class="p">)</span> <span class="n">SYSAUX</span> <span class="k">usage</span> <span class="o">-</span> <span class="n">Unregistered</span> <span class="n">Schemas</span>
+<span class="o">******************************************</span>
+
+<span class="o">|</span> <span class="n">This</span> <span class="n">section</span> <span class="n">displays</span> <span class="n">schemas</span> <span class="n">that</span> <span class="k">are</span> <span class="k">not</span> <span class="n">registered</span>                                                       
+<span class="o">|</span> <span class="k">in</span> <span class="n">V</span><span class="err">$</span><span class="n">SYSAUX_OCCUPANTS</span>                                                                                       
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="k">Schema</span>  <span class="n">APEX_030200</span>  <span class="n">occupies</span>             <span class="mi">82</span><span class="p">.</span><span class="mi">4</span> <span class="n">MB</span>                                                           
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Total</span> <span class="k">space</span>                               <span class="mi">82</span><span class="p">.</span><span class="mi">4</span> <span class="n">MB</span>                                                           
+<span class="o">|</span>                                                                                                             
+                                                                                                              
+<span class="o">*************************************************************</span>
+<span class="p">(</span><span class="mi">1</span><span class="n">d</span><span class="p">)</span> <span class="n">SYSAUX</span> <span class="k">usage</span> <span class="o">-</span> <span class="n">Unaccounted</span> <span class="k">space</span> <span class="k">in</span> <span class="n">registered</span> <span class="n">schemas</span>
+<span class="o">*************************************************************</span>
+<span class="o">|</span>
+<span class="o">|</span> <span class="n">This</span> <span class="n">section</span> <span class="n">displays</span> <span class="n">unaccounted</span> <span class="k">space</span> <span class="k">in</span> <span class="n">the</span> <span class="n">registered</span>
+<span class="o">|</span> <span class="n">schemas</span> <span class="k">of</span> <span class="n">V</span><span class="err">$</span><span class="n">SYSAUX_OCCUPANTS</span><span class="p">.</span>
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Unaccounted</span> <span class="k">space</span> <span class="k">in</span> <span class="n">SYS</span><span class="o">/</span><span class="k">SYSTEM</span>          <span class="o">-</span><span class="mi">16</span><span class="p">.</span><span class="mi">4</span> <span class="n">MB</span>                                                           
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Total</span> <span class="k">space</span>                              <span class="o">-</span><span class="mi">16</span><span class="p">.</span><span class="mi">4</span> <span class="n">MB</span>                                                           
+<span class="o">|</span>                                                                                                             
+<span class="o">*************************************</span>                                                                         
+<span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">Size</span> <span class="n">estimates</span> <span class="k">for</span> <span class="n">AWR</span> <span class="n">snapshots</span>                                                                          
+<span class="o">*************************************</span>                                                                         
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Estimates</span> <span class="n">based</span> <span class="k">on</span> <span class="mi">60</span> <span class="n">mins</span> <span class="n">snapshot</span> <span class="n">INTERVAL</span><span class="p">:</span>                                                               
+<span class="o">|</span>    <span class="n">AWR</span> <span class="k">size</span><span class="o">/</span><span class="k">day</span>                           <span class="mi">25</span><span class="p">.</span><span class="mi">0</span> <span class="n">MB</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">066</span> <span class="n">K</span><span class="o">/</span><span class="n">snap</span> <span class="o">*</span> <span class="mi">24</span> <span class="n">snaps</span><span class="o">/</span><span class="k">day</span><span class="p">)</span>                             
+<span class="o">|</span>    <span class="n">AWR</span> <span class="k">size</span><span class="o">/</span><span class="n">wk</span>                           <span class="mi">174</span><span class="p">.</span><span class="mi">9</span> <span class="n">MB</span> <span class="p">(</span><span class="n">size_per_day</span> <span class="o">*</span> <span class="mi">7</span><span class="p">)</span> <span class="n">per</span> <span class="n">instance</span>                           
+<span class="o">|</span>                                                                                                             
+<span class="o">|</span> <span class="n">Estimates</span> <span class="n">based</span> <span class="k">on</span> <span class="mi">24</span> <span class="n">snaps</span> <span class="k">in</span> <span class="n">past</span> <span class="mi">24</span> <span class="n">hours</span><span class="p">:</span>                                                               
+<span class="o">|</span>    <span class="n">AWR</span> <span class="k">size</span><span class="o">/</span><span class="k">day</span>                           <span class="mi">25</span><span class="p">.</span><span class="mi">0</span> <span class="n">MB</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">066</span> <span class="n">K</span><span class="o">/</span><span class="n">snap</span> <span class="k">and</span> <span class="mi">24</span> <span class="n">snaps</span> <span class="k">in</span> <span class="n">past</span> <span class="mi">24</span> <span class="n">hours</span><span class="p">)</span>              
+<span class="o">|</span>    <span class="n">AWR</span> <span class="k">size</span><span class="o">/</span><span class="n">wk</span>                           <span class="mi">174</span><span class="p">.</span><span class="mi">9</span> <span class="n">MB</span> <span class="p">(</span><span class="n">size_per_day</span> <span class="o">*</span> <span class="mi">7</span><span class="p">)</span> <span class="n">per</span> <span class="n">instance</span>                           
+<span class="o">|</span>                                                                                                             
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">3</span><span class="n">a</span><span class="p">)</span> <span class="k">Space</span> <span class="k">usage</span> <span class="k">by</span> <span class="n">AWR</span> <span class="n">components</span> <span class="p">(</span><span class="n">per</span> <span class="k">database</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">COMPONENT</span>        <span class="n">MB</span>  <span class="o">%</span> <span class="n">AWR</span>  <span class="n">KB_PER_SNAP</span> <span class="n">MB_PER_DAY</span> <span class="n">MB_PER_WEEK</span> <span class="k">TABLE</span><span class="o">%</span> <span class="p">:</span> <span class="k">INDEX</span><span class="o">%</span>                                
+<span class="c1">--------- --------- ------ ------------ ---------- ----------- ----------------                               </span>
+<span class="nb">FIXED</span>         <span class="mi">119</span><span class="p">.</span><span class="mi">1</span>   <span class="mi">55</span><span class="p">.</span><span class="mi">0</span>          <span class="mi">586</span>       <span class="mi">13</span><span class="p">.</span><span class="mi">7</span>        <span class="mi">96</span><span class="p">.</span><span class="mi">2</span>    <span class="mi">56</span><span class="o">%</span> <span class="p">:</span> <span class="mi">44</span><span class="o">%</span>                                   
+<span class="n">SQLPLAN</span>        <span class="mi">26</span><span class="p">.</span><span class="mi">0</span>   <span class="mi">12</span><span class="p">.</span><span class="mi">0</span>          <span class="mi">128</span>        <span class="mi">3</span><span class="p">.</span><span class="mi">0</span>        <span class="mi">21</span><span class="p">.</span><span class="mi">0</span>    <span class="mi">65</span><span class="o">%</span> <span class="p">:</span> <span class="mi">35</span><span class="o">%</span>                                   
+<span class="n">EVENTS</span>         <span class="mi">21</span><span class="p">.</span><span class="mi">5</span>    <span class="mi">9</span><span class="p">.</span><span class="mi">9</span>          <span class="mi">106</span>        <span class="mi">2</span><span class="p">.</span><span class="mi">5</span>        <span class="mi">17</span><span class="p">.</span><span class="mi">4</span>    <span class="mi">59</span><span class="o">%</span> <span class="p">:</span> <span class="mi">41</span><span class="o">%</span>                                   
+<span class="k">SPACE</span>          <span class="mi">10</span><span class="p">.</span><span class="mi">9</span>    <span class="mi">5</span><span class="p">.</span><span class="mi">0</span>           <span class="mi">54</span>        <span class="mi">1</span><span class="p">.</span><span class="mi">3</span>         <span class="mi">8</span><span class="p">.</span><span class="mi">8</span>    <span class="mi">59</span><span class="o">%</span> <span class="p">:</span> <span class="mi">41</span><span class="o">%</span>                                   
+<span class="k">SQL</span>            <span class="mi">10</span><span class="p">.</span><span class="mi">8</span>    <span class="mi">5</span><span class="p">.</span><span class="mi">0</span>           <span class="mi">53</span>        <span class="mi">1</span><span class="p">.</span><span class="mi">2</span>         <span class="mi">8</span><span class="p">.</span><span class="mi">7</span>    <span class="mi">61</span><span class="o">%</span> <span class="p">:</span> <span class="mi">39</span><span class="o">%</span>                                   
+<span class="n">ASH</span>             <span class="mi">1</span><span class="p">.</span><span class="mi">9</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">9</span>           <span class="mi">10</span>        <span class="mi">0</span><span class="p">.</span><span class="mi">2</span>         <span class="mi">1</span><span class="p">.</span><span class="mi">6</span>    <span class="mi">58</span><span class="o">%</span> <span class="p">:</span> <span class="mi">42</span><span class="o">%</span>                                   
+<span class="n">SQLTEXT</span>         <span class="mi">0</span><span class="p">.</span><span class="mi">9</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">4</span>            <span class="mi">4</span>        <span class="mi">0</span><span class="p">.</span><span class="mi">1</span>         <span class="mi">0</span><span class="p">.</span><span class="mi">7</span>    <span class="mi">93</span><span class="o">%</span> <span class="p">:</span> <span class="mi">7</span><span class="o">%</span>                                    
+<span class="n">RAC</span>             <span class="mi">0</span><span class="p">.</span><span class="mi">6</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">3</span>            <span class="mi">3</span>        <span class="mi">0</span><span class="p">.</span><span class="mi">1</span>         <span class="mi">0</span><span class="p">.</span><span class="mi">5</span>    <span class="mi">50</span><span class="o">%</span> <span class="p">:</span> <span class="mi">50</span><span class="o">%</span>                                   
+<span class="n">SQLBIND</span>         <span class="mi">0</span><span class="p">.</span><span class="mi">6</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">3</span>            <span class="mi">3</span>        <span class="mi">0</span><span class="p">.</span><span class="mi">1</span>         <span class="mi">0</span><span class="p">.</span><span class="mi">5</span>    <span class="mi">56</span><span class="o">%</span> <span class="p">:</span> <span class="mi">44</span><span class="o">%</span>                                   
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">3</span><span class="n">b</span><span class="p">)</span> <span class="k">Space</span> <span class="k">usage</span> <span class="n">within</span> <span class="n">AWR</span> <span class="n">Components</span> <span class="p">(</span><span class="o">&gt;</span> <span class="mi">500</span><span class="n">K</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">COMPONENT</span>        <span class="n">MB</span> <span class="n">SEGMENT_NAME</span> <span class="o">-</span> <span class="o">%</span> <span class="n">SPACE_USED</span>                                           <span class="n">SEGMENT_TYPE</span>        
+<span class="c1">--------- --------- --------------------------------------------------------------------- ---------------     </span>
+<span class="nb">FIXED</span>          <span class="mi">17</span><span class="p">.</span><span class="mi">0</span> <span class="n">WRH</span><span class="err">$</span><span class="n">_SYSMETRIC_HISTORY</span>                                        <span class="o">-</span>  <span class="mi">80</span><span class="o">%</span>  <span class="k">TABLE</span>               
+<span class="nb">FIXED</span>          <span class="mi">12</span><span class="p">.</span><span class="mi">0</span> <span class="n">WRH</span><span class="err">$</span><span class="n">_SYSMETRIC_HISTORY_INDEX</span>                                  <span class="o">-</span>  <span class="mi">85</span><span class="o">%</span>  <span class="k">INDEX</span>               
+<span class="nb">FIXED</span>           <span class="mi">7</span><span class="p">.</span><span class="mi">0</span> <span class="n">WRH</span><span class="err">$</span><span class="n">_SYSMETRIC_SUMMARY</span>                                        <span class="o">-</span>  <span class="mi">40</span><span class="o">%</span>  <span class="k">TABLE</span>               
+
+<span class="n">COMPONENT</span>        <span class="n">MB</span> <span class="n">SEGMENT_NAME</span> <span class="o">-</span> <span class="o">%</span> <span class="n">SPACE_USED</span>                                           <span class="n">SEGMENT_TYPE</span>        
+<span class="c1">--------- --------- --------------------------------------------------------------------- ---------------     </span>
+<span class="n">EVENTS</span>          <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="n">WRH</span><span class="err">$</span><span class="n">_EVENT_HISTOGRAM</span><span class="p">.</span><span class="n">WRH</span><span class="err">$</span><span class="n">_EVENT__236423250_19915</span>              <span class="o">-</span>  <span class="mi">84</span><span class="o">%</span>  <span class="k">TABLE</span> <span class="n">PARTITION</span>     
+<span class="n">EVENTS</span>          <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="n">WRH</span><span class="err">$</span><span class="n">_EVENT_HISTOGRAM</span><span class="p">.</span><span class="n">WRH</span><span class="err">$</span><span class="n">_EVENT__236423250_19891</span>              <span class="o">-</span>  <span class="mi">84</span><span class="o">%</span>  <span class="k">TABLE</span> <span class="n">PARTITION</span>     
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">Space</span> <span class="k">usage</span> <span class="k">by</span> <span class="n">non</span><span class="o">-</span><span class="n">AWR</span> <span class="n">components</span> <span class="p">(</span><span class="o">&gt;</span> <span class="mi">500</span><span class="n">K</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">COMPONENT</span>        <span class="n">MB</span> <span class="n">SEGMENT_NAME</span>                                                          <span class="n">SEGMENT_TYPE</span>        
+<span class="c1">--------- --------- --------------------------------------------------------------------- ---------------     </span>
+<span class="n">NON_AWR</span>        <span class="mi">54</span><span class="p">.</span><span class="mi">2</span> <span class="n">XDB</span><span class="p">.</span><span class="n">SYS_LOB0000069716C00025</span><span class="err">$$</span>                                         <span class="n">LOBSEGMENT</span>          
+<span class="n">NON_AWR</span>        <span class="mi">49</span><span class="p">.</span><span class="mi">0</span> <span class="n">SYS</span><span class="p">.</span><span class="n">I_WRI</span><span class="err">$</span><span class="n">_OPTSTAT_H_OBJ</span><span class="o">#</span><span class="n">_ICOL</span><span class="o">#</span><span class="n">_ST</span>                                    <span class="k">INDEX</span>               
+<span class="n">NON_AWR</span>        <span class="mi">31</span><span class="p">.</span><span class="mi">0</span> <span class="n">SYS</span><span class="p">.</span><span class="n">WRI</span><span class="err">$</span><span class="n">_OPTSTAT_HISTGRM_HISTORY</span>                                      <span class="k">TABLE</span>               
+<span class="n">NON_AWR</span>        <span class="mi">23</span><span class="p">.</span><span class="mi">0</span> <span class="n">SYS</span><span class="p">.</span><span class="n">I_WRI</span><span class="err">$</span><span class="n">_OPTSTAT_H_ST</span>                                               <span class="k">INDEX</span>               
+                                         <span class="k">TABLE</span>               
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">5</span><span class="n">a</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">snapshots</span> <span class="o">-</span> <span class="k">last</span> <span class="mi">50</span>
+<span class="o">**********************************</span>
+
+<span class="n">Total</span> <span class="n">snapshots</span> <span class="k">in</span> <span class="n">DB</span> <span class="mi">236423250</span> <span class="n">Instance</span> <span class="mi">1</span> <span class="o">=</span> <span class="mi">208</span>                                                              
+
+      <span class="n">DBID</span>    <span class="n">SNAP_ID</span>  <span class="n">INST</span> <span class="n">FLUSH_ELAPSED</span>        <span class="n">ENDTM</span>             <span class="n">STARTUP_TIME</span>      <span class="n">STATUS</span> <span class="n">ERRCNT</span>            
+<span class="c1">---------- ---------- ----- -------------------- ----------------- ----------------- ------ ------            </span>
+ <span class="mi">236423250</span>      <span class="mi">20071</span>     <span class="mi">1</span> <span class="o">+</span><span class="mi">00000</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">.</span><span class="mi">5</span>    <span class="mi">15</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">54</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">29</span><span class="p">)</span>  <span class="mi">10</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">55</span> <span class="p">(</span><span class="mi">03</span><span class="o">/</span><span class="mi">17</span><span class="p">)</span>       <span class="mi">0</span>      <span class="mi">0</span>            
+ <span class="mi">236423250</span>      <span class="mi">20072</span>     <span class="mi">1</span> <span class="o">+</span><span class="mi">00000</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">01</span><span class="p">.</span><span class="mi">0</span>    <span class="mi">16</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">24</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">29</span><span class="p">)</span>  <span class="mi">10</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">55</span> <span class="p">(</span><span class="mi">03</span><span class="o">/</span><span class="mi">17</span><span class="p">)</span>       <span class="mi">0</span>      <span class="mi">0</span>            
+ <span class="mi">236423250</span>      <span class="mi">20073</span>     <span class="mi">1</span> <span class="o">+</span><span class="mi">00000</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">.</span><span class="mi">6</span>    <span class="mi">17</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">43</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">29</span><span class="p">)</span>  <span class="mi">10</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">55</span> <span class="p">(</span><span class="mi">03</span><span class="o">/</span><span class="mi">17</span><span class="p">)</span>       <span class="mi">0</span>      <span class="mi">0</span>            
+ <span class="mi">236423250</span>      <span class="mi">20074</span>     <span class="mi">1</span> <span class="o">+</span><span class="mi">00000</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">01</span><span class="p">.</span><span class="mi">1</span>    <span class="mi">18</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">01</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">29</span><span class="p">)</span>  <span class="mi">10</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">55</span> <span class="p">(</span><span class="mi">03</span><span class="o">/</span><span class="mi">17</span><span class="p">)</span>       <span class="mi">0</span>      <span class="mi">0</span>            
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">5</span><span class="n">b</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">snapshots</span> <span class="k">with</span> <span class="n">errors</span> <span class="k">or</span> <span class="n">invalid</span>
+<span class="o">**********************************</span>
+
+<span class="k">no</span> <span class="k">rows</span> <span class="n">selected</span>
+
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">5</span><span class="k">c</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">snapshots</span> <span class="c1">-- OLDEST Non-Baselined snapshots</span>
+<span class="o">**********************************</span>
+
+      <span class="n">DBID</span>  <span class="n">INST</span>    <span class="n">SNAP_ID</span> <span class="n">ENDTM</span>             <span class="n">STATUS</span> <span class="n">ERROR_COUNT</span>                                              
+<span class="c1">---------- ----- ---------- ----------------- ------ -----------                                              </span>
+ <span class="mi">236423250</span>     <span class="mi">1</span>      <span class="mi">19913</span> <span class="mi">01</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">53</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">23</span><span class="p">)</span>       <span class="mi">0</span>           <span class="mi">0</span>                                              
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">Control</span> <span class="n">Settings</span> <span class="o">-</span> <span class="n">interval</span><span class="p">,</span> <span class="n">retention</span>
+<span class="o">**********************************</span>
+
+       <span class="n">DBID</span>  <span class="n">LSNAPID</span> <span class="n">LSPLITID</span> <span class="n">LSNAPTIME</span>      <span class="n">LPURGETIME</span>      <span class="n">FLAG</span> <span class="n">INTERVAL</span>          <span class="n">RETENTION</span>         <span class="n">VRSN</span>    
+<span class="c1">----------- -------- -------- -------------- -------------- ----- ----------------- ----------------- ----    </span>
+  <span class="mi">236423250</span>    <span class="mi">20120</span>    <span class="mi">20105</span> <span class="mi">05</span><span class="o">/</span><span class="mi">31</span> <span class="mi">16</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">52</span> <span class="mi">05</span><span class="o">/</span><span class="mi">31</span> <span class="mi">00</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mi">26</span>     <span class="mi">2</span> <span class="o">+</span><span class="mi">00000</span> <span class="mi">01</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">.</span><span class="mi">0</span> <span class="o">+</span><span class="mi">00008</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">.</span><span class="mi">0</span>    <span class="mi">5</span>    
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">7</span><span class="n">a</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">Contents</span> <span class="o">-</span> <span class="k">row</span> <span class="n">counts</span> <span class="k">for</span> <span class="k">each</span> <span class="n">snapshots</span>
+<span class="o">**********************************</span>
+
+   <span class="n">SNAP_ID</span>  <span class="n">INST</span>        <span class="n">ASH</span>        <span class="k">SQL</span>      <span class="n">SQBND</span>      <span class="n">FILES</span>      <span class="n">SEGST</span>     <span class="n">SYSEVT</span>                            
+<span class="c1">---------- ----- ---------- ---------- ---------- ---------- ---------- ----------                            </span>
+     <span class="mi">20071</span>     <span class="mi">1</span>          <span class="mi">3</span>         <span class="mi">71</span>        <span class="mi">225</span>         <span class="mi">29</span>         <span class="mi">90</span>        <span class="mi">118</span>                            
+     <span class="mi">20072</span>     <span class="mi">1</span>          <span class="mi">5</span>         <span class="mi">70</span>        <span class="mi">203</span>         <span class="mi">29</span>         <span class="mi">89</span>        <span class="mi">118</span>                            
+     <span class="mi">20073</span>     <span class="mi">1</span>          <span class="mi">5</span>         <span class="mi">71</span>        <span class="mi">214</span>         <span class="mi">29</span>         <span class="mi">89</span>        <span class="mi">118</span>                            
+     <span class="mi">20074</span>     <span class="mi">1</span>          <span class="mi">3</span>         <span class="mi">70</span>        <span class="mi">204</span>         <span class="mi">29</span>         <span class="mi">88</span>        <span class="mi">118</span>                            
+     <span class="mi">20075</span>     <span class="mi">1</span>          <span class="mi">1</span>         <span class="mi">71</span>        <span class="mi">216</span>         <span class="mi">29</span>         <span class="mi">89</span>        <span class="mi">118</span>                            
+     <span class="mi">20076</span>     <span class="mi">1</span>          <span class="mi">2</span>         <span class="mi">73</span>        <span class="mi">207</span>         <span class="mi">29</span>         <span class="mi">90</span>        <span class="mi">118</span>                            
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">7</span><span class="n">b</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">Contents</span> <span class="o">-</span> <span class="n">average</span> <span class="k">row</span> <span class="n">counts</span> <span class="n">per</span> <span class="n">snapshot</span>
+<span class="o">**********************************</span>
+
+<span class="n">SNAP_COUNT</span>  <span class="n">INST</span>        <span class="n">ASH</span>    <span class="n">SQLSTAT</span>    <span class="n">SQLBIND</span>      <span class="n">FILES</span>    <span class="n">SEGSTAT</span>   <span class="n">SYSEVENT</span>                            
+<span class="c1">---------- ----- ---------- ---------- ---------- ---------- ---------- ----------                            </span>
+       <span class="mi">208</span>     <span class="mi">1</span>       <span class="mi">8</span><span class="p">.</span><span class="mi">52</span>      <span class="mi">81</span><span class="p">.</span><span class="mi">37</span>     <span class="mi">284</span><span class="p">.</span><span class="mi">39</span>      <span class="mi">27</span><span class="p">.</span><span class="mi">79</span>      <span class="mi">88</span><span class="p">.</span><span class="mi">72</span>     <span class="mi">117</span><span class="p">.</span><span class="mi">38</span>                            
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">7</span><span class="k">c</span><span class="p">)</span> <span class="n">AWR</span> <span class="n">total</span> <span class="n">item</span> <span class="n">counts</span> <span class="o">-</span> <span class="k">names</span><span class="p">,</span> <span class="nb">text</span><span class="p">,</span> <span class="n">plans</span>
+<span class="o">**********************************</span>
+
+   <span class="n">SQLTEXT</span>    <span class="n">SQLPLAN</span>   <span class="n">SQLBMETA</span>     <span class="n">SEGOBJ</span>   <span class="n">DATAFILE</span>   <span class="n">TEMPFILE</span>                                             
+<span class="c1">---------- ---------- ---------- ---------- ---------- ----------                                             </span>
+       <span class="mi">340</span>       <span class="mi">7874</span>       <span class="mi">1673</span>        <span class="mi">958</span>         <span class="mi">29</span>          <span class="mi">1</span>                                             
+
+
+<span class="o">########################################################</span>
+<span class="p">(</span><span class="n">II</span><span class="p">)</span> <span class="n">Advisor</span> <span class="n">Framework</span> <span class="n">Info</span>
+<span class="o">########################################################</span>
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="n">Advisor</span> <span class="n">Tasks</span> <span class="o">-</span> <span class="k">Last</span> <span class="mi">50</span>
+<span class="o">**********************************</span>
+
+<span class="k">OWNER</span><span class="o">/</span><span class="n">ADVISOR</span>  <span class="n">TASK_ID</span><span class="o">/</span><span class="n">NAME</span>                     <span class="n">CREATED</span>          <span class="n">EXE_DURATN</span> <span class="n">EXE_CREATN</span> <span class="n">HOW_C</span> <span class="n">STATUS</span>           
+<span class="c1">-------------- -------------------------------- ---------------- ---------- ---------- ----- ------------     </span>
+<span class="n">SYS</span><span class="o">/</span><span class="k">SQL</span> <span class="n">Tuning</span> <span class="mi">1</span><span class="o">/</span><span class="n">SYS_AUTO_SQL_TUNING_TASK</span>       <span class="mi">15</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mi">18</span> <span class="p">(</span><span class="mi">02</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span>          <span class="mi">1</span> <span class="o">##########</span> <span class="n">AUTO</span>  <span class="n">COMPLETED</span>        
+<span class="n">SYS</span><span class="o">/</span><span class="n">ADDM</span>       <span class="mi">20211</span><span class="o">/</span><span class="n">ADDM</span><span class="p">:</span><span class="mi">236423250</span><span class="n">_1_20072</span>     <span class="mi">16</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">26</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">29</span><span class="p">)</span>          <span class="mi">0</span>          <span class="mi">0</span> <span class="n">AUTO</span>  <span class="n">COMPLETED</span>        
+<span class="n">SYS</span><span class="o">/</span><span class="n">ADDM</span>       <span class="mi">20212</span><span class="o">/</span><span class="n">ADDM</span><span class="p">:</span><span class="mi">236423250</span><span class="n">_1_20073</span>     <span class="mi">17</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">44</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">29</span><span class="p">)</span>          <span class="mi">0</span>          <span class="mi">0</span> <span class="n">AUTO</span>  <span class="n">COMPLETED</span>        
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="n">Advisor</span> <span class="n">Task</span> <span class="o">-</span> <span class="n">Oldest</span> <span class="mi">5</span>
+<span class="o">**********************************</span>
+
+<span class="k">OWNER</span><span class="o">/</span><span class="n">ADVISOR</span>  <span class="n">TASK_ID</span><span class="o">/</span><span class="n">NAME</span>                     <span class="n">CREATED</span>          <span class="n">EXE_DURATN</span> <span class="n">EXE_CREATN</span> <span class="n">HOW_C</span> <span class="n">STATUS</span>           
+<span class="c1">-------------- -------------------------------- ---------------- ---------- ---------- ----- ------------     </span>
+<span class="n">SYS</span><span class="o">/</span><span class="n">ADDM</span>       <span class="mi">19514</span><span class="o">/</span><span class="n">ADDM</span><span class="p">:</span><span class="mi">236423250</span><span class="n">_1_19385</span>     <span class="mi">01</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">45</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">01</span><span class="p">)</span>          <span class="mi">0</span>          <span class="mi">0</span> <span class="n">AUTO</span>  <span class="n">COMPLETED</span>        
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="n">Advisor</span> <span class="n">Tasks</span> <span class="k">With</span> <span class="n">Errors</span> <span class="o">-</span> <span class="k">Last</span> <span class="mi">50</span>
+<span class="o">**********************************</span>
+
+<span class="k">no</span> <span class="k">rows</span> <span class="n">selected</span>
+
+
+
+<span class="o">########################################################</span>
+<span class="p">(</span><span class="n">III</span><span class="p">)</span> <span class="n">ASH</span> <span class="k">Usage</span> <span class="n">Info</span>
+<span class="o">########################################################</span>
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">1</span><span class="n">a</span><span class="p">)</span> <span class="n">ASH</span> <span class="n">histogram</span> <span class="p">(</span><span class="n">past</span> <span class="mi">3</span> <span class="n">days</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">NUM_ACTIVE_SESSIONS</span>   <span class="n">NUM_SAMPLES</span>                                                                             
+<span class="c1">-------------------- ------------                                                                             </span>
+<span class="mi">0000</span> <span class="o">-</span> <span class="mi">0004</span>                   <span class="mi">249</span>                                                                             
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">1</span><span class="n">b</span><span class="p">)</span> <span class="n">ASH</span> <span class="n">histogram</span> <span class="p">(</span><span class="n">past</span> <span class="mi">1</span> <span class="k">day</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">NUM_ACTIVE_SESSIONS</span>   <span class="n">NUM_SAMPLES</span>                                                                             
+<span class="c1">-------------------- ------------                                                                             </span>
+<span class="mi">0000</span> <span class="o">-</span> <span class="mi">0004</span>                    <span class="mi">85</span>                                                                             
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">2</span><span class="n">a</span><span class="p">)</span> <span class="n">ASH</span> <span class="n">details</span> <span class="p">(</span><span class="n">past</span> <span class="mi">3</span> <span class="n">days</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">INST</span> <span class="n">MIN_TIME</span>         <span class="n">MAX_TIME</span>          <span class="n">NUM_SAMPLES</span>     <span class="n">NUM_ROWS</span> <span class="n">AVG_ACTIVE</span>                                   
+<span class="c1">---- ---------------- ---------------- ------------ ------------ ----------                                   </span>
+   <span class="mi">1</span> <span class="mi">17</span><span class="p">:</span><span class="mi">01</span><span class="p">:</span><span class="mi">06</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">28</span><span class="p">)</span> <span class="mi">15</span><span class="p">:</span><span class="mi">55</span><span class="p">:</span><span class="mi">45</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">31</span><span class="p">)</span>       <span class="mi">25</span><span class="p">,</span><span class="mi">523</span>          <span class="mi">260</span>       <span class="mi">0</span><span class="p">.</span><span class="mi">01</span>                                   
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">2</span><span class="n">b</span><span class="p">)</span> <span class="n">ASH</span> <span class="n">details</span> <span class="p">(</span><span class="n">past</span> <span class="mi">1</span> <span class="k">day</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">INST</span> <span class="n">MIN_TIME</span>         <span class="n">MAX_TIME</span>          <span class="n">NUM_SAMPLES</span>     <span class="n">NUM_ROWS</span> <span class="n">AVG_ACTIVE</span>                                   
+<span class="c1">---- ---------------- ---------------- ------------ ------------ ----------                                   </span>
+   <span class="mi">1</span> <span class="mi">17</span><span class="p">:</span><span class="mi">15</span><span class="p">:</span><span class="mi">49</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">30</span><span class="p">)</span> <span class="mi">15</span><span class="p">:</span><span class="mi">55</span><span class="p">:</span><span class="mi">45</span> <span class="p">(</span><span class="mi">05</span><span class="o">/</span><span class="mi">31</span><span class="p">)</span>        <span class="mi">8</span><span class="p">,</span><span class="mi">158</span>           <span class="mi">89</span>       <span class="mi">0</span><span class="p">.</span><span class="mi">01</span>                                   
+
+<span class="o">**********************************</span>
+<span class="p">(</span><span class="mi">2</span><span class="k">c</span><span class="p">)</span> <span class="n">ASH</span> <span class="n">sessions</span> <span class="p">(</span><span class="n">Fg</span> <span class="n">Vs</span> <span class="n">Bg</span><span class="p">)</span> <span class="p">(</span><span class="n">past</span> <span class="mi">1</span> <span class="k">day</span> <span class="n">across</span> <span class="k">all</span> <span class="n">instances</span> <span class="k">in</span> <span class="n">RAC</span><span class="p">)</span>
+<span class="o">**********************************</span>
+
+<span class="n">Foreground</span> <span class="o">%</span>           <span class="mi">14</span><span class="p">.</span><span class="mi">6</span>                                                                                   
+<span class="n">Background</span> <span class="o">%</span>           <span class="mi">85</span><span class="p">.</span><span class="mi">4</span>                                                                                   
+<span class="n">MMNL</span> <span class="o">%</span>                  <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>                                                                                   
+                                                                                                              
+<span class="k">End</span> <span class="k">of</span> <span class="n">Report</span>
+
+
+
+</code></pre></div></div>
+
+<h3 id="기타-awr-보고서-생성-관련-스크립트">기타 AWR 보고서 생성 관련 스크립트</h3>
+<ul>
+  <li>다른 스크립트에 의해 호출되거나 동일한 기능이 다른 스크립트에 포함되어 있어서 사용하지 않는 스크립트</li>
+  <li>awrddinp.sql</li>
+  <li>awrinput.sql</li>
+  <li>awrinpnm.sql</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>스크립트</th>
+      <th>설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>awrddinp.sql</td>
+      <td>awrddrpti.sql 스크립트에서 호출되어서 사용되며, AWR DB 비교 보고서 생성에서 실제 이 스크립트가 수행.<br />awrddrpti.sql은 AWR에서 정보를 수집하는 기능만 수행</td>
+    </tr>
+    <tr>
+      <td>awrinpnm.sql</td>
+      <td>awrrpti.sql, awrsqrpi.sql에 의해 호출되어서 사용.<br />awrrpti.sql, awrsqrpi.sql은 AWR에서 정보를 수집하는 기능만 수행</td>
+    </tr>
+    <tr>
+      <td>awrinput.sql</td>
+      <td>awrrpti.sql, awrsqrpi.sql에 의해 호출되어서 사용.</td>
+    </tr>
+  </tbody>
+</table>
+:ET
