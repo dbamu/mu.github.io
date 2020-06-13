@@ -1,0 +1,477 @@
+I"X<h3 id="요약-보고서">요약 보고서</h3>
+
+<ul>
+  <li>스냅샷 구간의 인스턴스 정보 및 문제 발생 여부의 빠른 파악</li>
+  <li>문제 해결 방향 설정</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>보고서</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DB 환경</td>
+      <td>처음부터 Cache Size 단위 보고서 전까지 부분</td>
+    </tr>
+    <tr>
+      <td>메모리</td>
+      <td>Cache Size, Instance Efficiency Percentages(Target 100%)</td>
+    </tr>
+    <tr>
+      <td>부하 발생</td>
+      <td>Load PROFILE</td>
+    </tr>
+    <tr>
+      <td>대기 이벤트</td>
+      <td>Top 5 Timed Events</td>
+    </tr>
+    <tr>
+      <td>RAC</td>
+      <td>Global Cache Load Profile,<br />Global Cache Efficiency Percentages(Target local + remote 100%),<br />Global Cache and Enqueue Services - Workload Characteristics,<br />Global Cache and Enqueue Services - messaging Statistics</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="인스턴스-정보">인스턴스 정보</h3>
+
+<p><img src="https://github.com/lght2000/mu.github.io/blob/master/assets/images/instance_info.PNG?raw=true" alt="instance_info" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>의미</th>
+      <th>관련컬럼</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DB Name</td>
+      <td>데이터베이스 이름</td>
+      <td>DB_NAME</td>
+    </tr>
+    <tr>
+      <td>DB ID</td>
+      <td>데이터베이스 ID</td>
+      <td>DBID</td>
+    </tr>
+    <tr>
+      <td>Instance</td>
+      <td>인스턴스 이름</td>
+      <td>INSTANCE_NAME</td>
+    </tr>
+    <tr>
+      <td>InstNum</td>
+      <td>인스턴스 번호</td>
+      <td>INSTANCE_NUMBER</td>
+    </tr>
+    <tr>
+      <td>Release</td>
+      <td>오라클 버전 정보</td>
+      <td>VERSION</td>
+    </tr>
+    <tr>
+      <td>RAC</td>
+      <td>RAC 여부 확인</td>
+      <td>PARALLEL</td>
+    </tr>
+    <tr>
+      <td>Host</td>
+      <td>인스턴스가 설치된 시스템 이름</td>
+      <td>HOST_NAME</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>dba_hist_database_instance</li>
+  <li>v$instance 뷰 활용</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">select</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">dbid</span><span class="p">,</span> <span class="n">instance_name</span><span class="p">,</span> <span class="n">startup_time</span><span class="p">,</span> <span class="k">version</span><span class="p">,</span> <span class="n">host_name</span><span class="p">,</span> <span class="n">platform_name</span> 
+<span class="k">from</span> <span class="n">dba_hist_database_instance</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="n">instance_name</span><span class="p">,</span> <span class="n">startup_time</span><span class="p">,</span> <span class="k">version</span><span class="p">,</span> <span class="n">host_name</span> <span class="k">from</span> <span class="n">v</span><span class="err">$</span><span class="n">instance</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<h3 id="awr-스냅샷-정보">AWR 스냅샷 정보</h3>
+
+<p><img src="https://github.com/lght2000/mu.github.io/blob/master/assets/images/awr_snapshot_info.PNG?raw=true" alt="awr_snapshot_info" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>의미</th>
+      <th>관련컬럼</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Snap ID</td>
+      <td>AWR 스냅샷 번호</td>
+      <td>A.SNAP_ID</td>
+    </tr>
+    <tr>
+      <td>Snap Time</td>
+      <td>AWR 스냅샷이 수행된 시간</td>
+      <td>A.END_INTERVAL_TIME</td>
+    </tr>
+    <tr>
+      <td>Sessions</td>
+      <td>AWR 스냅샷 구간에서 세션 수(active + inactive)</td>
+      <td>SUM(C.VALUE) WHERE STAT_NAME = ‘logons current’</td>
+    </tr>
+    <tr>
+      <td>Cur/Sess</td>
+      <td>AWR 스냅샷 구간에서 세션이 사용한 평균 커서의 수</td>
+      <td>(SUM(C.VALUE) WHERE STAT_NAME ‘opened cursors current’) / (SUM(C.VALUE) WHERE STAT_NAME ‘logons current’)</td>
+    </tr>
+    <tr>
+      <td>Elapsed</td>
+      <td>AWR 스냅샷 구간에서 소요시간(단위:분)</td>
+      <td>(EXTRACT(DAY FROM(A.END_INTERVAL_TIME)) * 86400) +<br />(EXTRACT(HOUR FROM(A.END_INTERVAL_TIME)) * 3600) +<br />(EXTRACT(MINUTE FROM(A.END_INTERVAL_TIME)) * 60) +<br />(EXTRACT(SECOND FROM(A.END_INTERVAL_TIME)) / 60) +</td>
+    </tr>
+    <tr>
+      <td>DB Time</td>
+      <td>AWR 스냅샷 구간에서 데이터베이스를 사용한 총 시간(단위:분)</td>
+      <td>(SUM(B.VALUE) WHERE STAT_NAME = ‘DB Time’) / 1000000 / 60</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>A : DBA_HIST_SNAPSHOT</li>
+  <li>B : DBA_HIST_SYS_TIME_MODEL</li>
+  <li>C : DBA_HIST_SYSSTAT</li>
+</ul>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">-- 스냅샷 정보</span>
+<span class="k">select</span> <span class="n">snap_id</span><span class="p">,</span> <span class="n">instance_number</span><span class="p">,</span> <span class="n">startup_time</span><span class="p">,</span> <span class="n">begin_interval_time</span><span class="p">,</span> <span class="n">end_interval_time</span>  <span class="k">from</span> <span class="n">dba_hist_snapshot</span> <span class="n">a</span>
+<span class="k">where</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">begin_interval_time</span> <span class="o">&gt;=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 09:30'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">)</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">END_INTERVAL_TIME</span> <span class="o">&lt;</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 10:01'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">))</span> 
+<span class="k">and</span> <span class="n">instance_number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">-- 스냅샷 구간의 세션 수</span>
+<span class="k">select</span> <span class="k">sum</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>  
+<span class="k">from</span> <span class="n">dba_hist_snapshot</span> <span class="n">a</span><span class="p">,</span> <span class="n">dba_hist_sysstat</span> <span class="k">c</span>
+<span class="k">where</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">begin_interval_time</span> <span class="o">&gt;=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 09:30'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">)</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">END_INTERVAL_TIME</span> <span class="o">&lt;</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 10:01'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">))</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">snap_id</span> <span class="o">=</span> <span class="k">c</span><span class="p">.</span><span class="n">snap_id</span>
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="k">c</span><span class="p">.</span><span class="n">instance_number</span>
+<span class="k">and</span> <span class="k">c</span><span class="p">.</span><span class="n">stat_name</span><span class="o">=</span> <span class="s1">'logons current'</span><span class="p">;</span>
+
+
+<span class="c1">-- 스냅샷 구간에서 열렸던 커서 갯수</span>
+<span class="k">select</span> <span class="k">sum</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>  
+<span class="k">from</span> <span class="n">dba_hist_snapshot</span> <span class="n">a</span><span class="p">,</span> <span class="n">dba_hist_sysstat</span> <span class="k">c</span>
+<span class="k">where</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">begin_interval_time</span> <span class="o">&gt;=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 09:30'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">)</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">END_INTERVAL_TIME</span> <span class="o">&lt;</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 10:01'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">))</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">snap_id</span> <span class="o">=</span> <span class="k">c</span><span class="p">.</span><span class="n">snap_id</span>
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="k">c</span><span class="p">.</span><span class="n">instance_number</span>
+<span class="k">and</span> <span class="k">c</span><span class="p">.</span><span class="n">stat_name</span><span class="o">=</span> <span class="s1">'opened cursors current'</span><span class="p">;</span>
+
+
+<span class="c1">-- 스냅샷 구간의 소요 시간(Elapsed) =&gt; 단위 분 </span>
+<span class="k">select</span> 
+<span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">END_INTERVAL_TIME</span> <span class="o">-</span> <span class="n">A</span><span class="p">.</span><span class="n">begin_interval_time</span><span class="p">)</span>  
+<span class="k">from</span> <span class="n">dba_hist_snapshot</span> <span class="n">a</span> 
+<span class="k">where</span> <span class="n">a</span><span class="p">.</span><span class="n">begin_interval_time</span> <span class="o">&gt;=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 09:30'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">)</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">END_INTERVAL_TIME</span> <span class="o">&lt;=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 10:01'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">)</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">-- 스냅샷 구간 DB time 확인 =&gt; 단위 분</span>
+<span class="k">select</span> <span class="k">SUM</span><span class="p">(</span><span class="n">B</span><span class="p">.</span><span class="n">VALUE</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000000</span> <span class="o">/</span> <span class="mi">60</span>
+<span class="k">from</span> <span class="n">dba_hist_snapshot</span> <span class="n">a</span><span class="p">,</span> <span class="n">DBA_HIST_SYS_TIME_MODEL</span> <span class="n">b</span>
+<span class="k">where</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">begin_interval_time</span> <span class="o">&gt;=</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 09:30'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">)</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">END_INTERVAL_TIME</span> <span class="o">&lt;</span> <span class="n">to_date</span><span class="p">(</span><span class="s1">'2020/06/07 10:01'</span><span class="p">,</span><span class="s1">'YYYY/MM/DD HH24:mi'</span><span class="p">))</span> 
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">snap_id</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">snap_id</span>
+<span class="k">and</span> <span class="n">a</span><span class="p">.</span><span class="n">instance_number</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">instance_number</span>
+<span class="k">and</span> <span class="k">upper</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">stat_name</span><span class="p">)</span><span class="o">=</span> <span class="k">upper</span><span class="p">(</span><span class="s1">'DB time'</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h3 id="cache-size">Cache size</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>의미</th>
+      <th>관련컬럼</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Buffer Cache</td>
+      <td>버퍼 캐시 크기</td>
+      <td>A.VALUE WHERE PARAMETER_NAME = ‘_db_cache_size’</td>
+    </tr>
+    <tr>
+      <td>Shared Pool</td>
+      <td>공유 풀 크기</td>
+      <td>A.VALUE WHERE PARAMETER_NAME = ‘_shared_pool_size’</td>
+    </tr>
+    <tr>
+      <td>Std Block Size</td>
+      <td>DB_bloCK_SIZE 초기화 파라미터로 설정한 기본 데이터 블록 크기</td>
+      <td>A.VALUE WHERE PARAMETER_NAME = ‘db_block_size’</td>
+    </tr>
+    <tr>
+      <td>Log Buffer</td>
+      <td>리두 로그 버퍼 크기</td>
+      <td>ROUND(B.bytes / 1024, 0) WHERE NAME = ‘log_buffer’</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>A : DBA_HIST_PARAMETER =&gt; buffer cache / shared pool / std block size 확인 / 히든 파라미터 조회 가능</li>
+  <li>B : DBA_HIST_SGASTAT =&gt; log buffer 확인
+    <ul>
+      <li>log buffer : ASMM(Automatic Shared Memory Management) 사용 시 로그 버퍼의 크기 변경 X , 고정 크기</li>
+      <li>ASMM 사용 시 buffer cache, shared pool, large pool, java pool, stream pool 크기 자동 조절</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="load-profile">Load Profile</h3>
+
+<ul>
+  <li>DB 튜닝 필요성 유무를 판단하기 보다는 해당 구간에 발생한 부하량 파악 및 비정상적인 구간과의 비교를 위해 사용</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>의미</th>
+      <th>관련컬럼</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Redo size</td>
+      <td>발생한 리두 로그의 크기(단위 : 바이트)</td>
+      <td>redo size</td>
+    </tr>
+    <tr>
+      <td>Logical reads</td>
+      <td>메모리 읽기 I/O 발생 횟수</td>
+      <td>session logical reads</td>
+    </tr>
+    <tr>
+      <td>Block changes</td>
+      <td>SGA 메모리 블록을 변경한 횟수</td>
+      <td>db block changes</td>
+    </tr>
+    <tr>
+      <td>Physical reads</td>
+      <td>디스크에서 메모리로 읽어온 횟수(SGA + PGA)</td>
+      <td>physical reads</td>
+    </tr>
+    <tr>
+      <td>Physical writes</td>
+      <td>메모리에서 디스크로 내려쓴 횟수</td>
+      <td>physical writes</td>
+    </tr>
+    <tr>
+      <td>User calls</td>
+      <td>로그인, parse, fetch, sql execute 등 사용자가 요청한 모든 호출의 합</td>
+      <td>user calls</td>
+    </tr>
+    <tr>
+      <td>Parses</td>
+      <td>소프트 파스와 하드 파스가 발생한 횟수</td>
+      <td>parse count(total)</td>
+    </tr>
+    <tr>
+      <td>Hard parses</td>
+      <td>하드 파스 횟수</td>
+      <td>parse count(hard)</td>
+    </tr>
+    <tr>
+      <td>Sorts</td>
+      <td>SQL 수행 시 디스크에 내려쓰지 않고 메모리에서만 발생한 정렬 작업 횟수</td>
+      <td>sorts(memory)</td>
+    </tr>
+    <tr>
+      <td>Logons</td>
+      <td>스냅샷 구간 중 로그온한 총 횟수</td>
+      <td>logons cumulative</td>
+    </tr>
+    <tr>
+      <td>Executes</td>
+      <td>사용자가 수행한 SQL과 DB 내부에서 실행된 recursive SQL 횟수</td>
+      <td>execute count</td>
+    </tr>
+    <tr>
+      <td>Transactions</td>
+      <td>스냅샷 구간 중 발생한 트랜잭션 횟수(user commit + rollback)</td>
+      <td>user commits + user rollbacks</td>
+    </tr>
+    <tr>
+      <td>% Blocks changed per Read</td>
+      <td>메모리 읽기 I/O당 블록 변경 비율</td>
+      <td>100 * (db bock changes / session logical reads)</td>
+    </tr>
+    <tr>
+      <td>Rollback per transaction %</td>
+      <td>전체 트랜잭션 횟수 중 롤백 비율</td>
+      <td>100 * (user rollbacks / (user commits + user rollbacks))</td>
+    </tr>
+    <tr>
+      <td>Recursive Call %</td>
+      <td>전체 SQL 중 recursive SQL 비율</td>
+      <td>100 * (recursive calls / (user calls + recursive calls))</td>
+    </tr>
+    <tr>
+      <td>Rows per Sort</td>
+      <td>정렬 작업 시 평균 행의 수</td>
+      <td>(sort(rows) / (sorts(memory) + sorts(disk))</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>DBA_HIST_SYSSTAT 참조 ex) where upper(stat_name) = upper(‘parse count (total)’)</li>
+  <li>
+    <p>관련 동적 뷰 v$sysstat</p>
+  </li>
+  <li>physical reads는 SGA영역과 PGA영역에서 발생한 I/O의 합이기 때문에
+    <ul>
+      <li>Physical reads &gt; SGA physical reads cache +  SGA physical reads direct</li>
+    </ul>
+  </li>
+  <li>
+    <p>Physical writes = Physical writes direct + Physical writes from cache</p>
+  </li>
+  <li>
+    <p>정렬 작업 시 한번이라도 disk에 내려쓸 경우 sorts(disk) 수치에 포함됨.</p>
+  </li>
+  <li>transactions = user commits + user rollbacks
+    <ul>
+      <li>user commit =&gt; 변경된 데이터 없이 commit할 경우 수치 증가 X</li>
+      <li>user rollbacks =&gt; 변경된 데이터가 없더라도 명시적으로 롤백을 수행하면 수치가 증가</li>
+      <li>Load Profile의 transaction은 정확한 transaction 양을 나타내지 않음.</li>
+      <li>정확한 확인을 위해서는 Undo Segment Summary 단위 보고서의 Number of Transactions 칼럼 값을 확인.
+        <ul>
+          <li>Number of Transaction = 트랜잭션 발생 시 undo segment에 기록된 트랜잭션 양을 기준으로 산출.</li>
+          <li>따라서 Load Profile 단위 보고서의 Tranaction 값 보다 정확.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <p><img src="https://github.com/lght2000/mu.github.io/blob/master/assets/images/tran_diff.PNG?raw=true" alt="tran_diff" /></p>
+  </li>
+  <li>DB에 발생한 부하량을 나타내는 지표( User calls, Execute, Transactions)</li>
+  <li>데이터 변경 발생량을 나타내는 지표 ( Redo Size, Block Changes )
+    <ul>
+      <li>소수의 SQL로 수행되는 대형 배치 작업으로 인한 문제가 발생할 경우 부하량 지표는 증가 X</li>
+      <li>전체적인 부하 발생 증가 시 부하량 + 데이터 변경 발생량 모두 증가.</li>
+      <li>예제 참고 페이지 70쪽</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="instance-efficency-percentagestarget-100">Instance Efficency Percentages(Target 100%)</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>의미</th>
+      <th>관련컬럼</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Buffer Nowait %</td>
+      <td>버퍼 캐시 요청 시 대기 없이 원하는 버퍼 캐시를 획득한 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Buffer Hit %</td>
+      <td>필요한 블록을 디스크에서 읽어 오지 않고 버퍼 캐시에서 획득한 비율.<br />RAC 환경의 경우, 캐시 퓨전을 통해 다른 인스턴스의 메모리에서 읽어온 비율도 버퍼 캐시 적중률에 포함.</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Library Hit %</td>
+      <td>공유 풀의 라이브러리 캐시 적중률</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Execute to Parse %</td>
+      <td>파스 없이 SQL이 수행된 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Parse CPU to Parse Elapsd %</td>
+      <td>파스 수행 시간 중 CPU 사용 시간 비율.<br />100%에 가까울수록 대기 시간 없이 파스를 수행한 것</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Redo NoWait %</td>
+      <td>리두 로그 생성 시 로그 파일 공간 부족으로 log switch complete를 대기하지 않은 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>In-memory Sort %</td>
+      <td>전체 정렬 작업 중 메모리에서만 발생한 정렬 작업 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Soft Parse %</td>
+      <td>소프트 파스 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Latch Hit %</td>
+      <td>래치 요청 시 대기 없이 획득한 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>% Non-Parse CPU</td>
+      <td>파스에 사용된 CPU 시간을 제외한 CPU 사용 시간 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Memory Usage %</td>
+      <td>시작 스냅샷과 종료 스냅샷 수행 시 공유 풀 사용 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>% SQL with executions&gt;1</td>
+      <td>전체 SQL 중 1회 이상 수행된 SQL 비율</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>% Memory for SQL w/exec&gt;1</td>
+      <td>전체 SQL 중 1회 이상 사용된 SQL이 차지하는 메모리 공간 비율</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>A : DBA_HIST_WAITSTAT</li>
+  <li>B : DBA_HIST_LIBRARYCACHE</li>
+  <li>C : DBA_HIST_SYSSTAT</li>
+  <li>D : DBA_HIST_LATCH</li>
+  <li>E : DBA_HIST_SYS_TIME_MODEL</li>
+  <li>F : DBA_HIST_SGASTAT</li>
+  <li>G : DBA_HIST_PARAMETERS</li>
+  <li>H : DBA_HIST_SQL_SUMMARY</li>
+</ul>
+
+:ET

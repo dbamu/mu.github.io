@@ -21,7 +21,7 @@ nav_order: 1
 
 ### 인스턴스 정보
 
-![instance_info]()
+![instance_info](https://github.com/lght2000/mu.github.io/blob/master/assets/images/instance_info.PNG?raw=true)
 
 | 항목     | 의미                          | 관련컬럼        |
 |----------|-------------------------------|-----------------|
@@ -47,7 +47,7 @@ select instance_name, startup_time, version, host_name from v$instance;
 
 ### AWR 스냅샷 정보
 
-![awr_snapshot_info]()
+![awr_snapshot_info](https://github.com/lght2000/mu.github.io/blob/master/assets/images/awr_snapshot_info.PNG?raw=true)
 
 | 항목      | 의미                                                     | 관련컬럼                                                                                                                                                                                                             |
 |-----------|----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -169,7 +169,7 @@ and upper(b.stat_name)= upper('DB time');
         - Number of Transaction = 트랜잭션 발생 시 undo segment에 기록된 트랜잭션 양을 기준으로 산출.
         - 따라서 Load Profile 단위 보고서의 Tranaction 값 보다 정확.
      
-     ![tran_diff]()
+     ![tran_diff](https://github.com/lght2000/mu.github.io/blob/master/assets/images/tran_diff.PNG?raw=true)
      
      
 - DB에 발생한 부하량을 나타내는 지표( User calls, Execute, Transactions) 
@@ -180,7 +180,6 @@ and upper(b.stat_name)= upper('DB time');
 
 ### Instance Efficency Percentages(Target 100%)
 
-sult (click "Generate" to refresh) Copy to clipboard  Preview
 | 항목                        | 의미                                                                                                                                                                      | 관련컬럼 |
 |-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | Buffer Nowait %             | 버퍼 캐시 요청 시 대기 없이 원하는 버퍼 캐시를 획득한 비율                                                                                                                |          |
