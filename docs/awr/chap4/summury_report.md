@@ -302,7 +302,7 @@ and upper(b.stat_name)= upper('DB time');
 - end_snapshot - begin_snapshot
 - 오라클 성능 문제 시 가장 먼저 체크해야할 보고서
 
-![top10]()
+![top10](https://github.com/lght2000/mu.github.io/blob/master/assets/images/top10.PNG?raw=true)
 
 | 항목                  | 의미                            | 관련컬럼                                      |
 |-----------------------|---------------------------------|-----------------------------------------------|
