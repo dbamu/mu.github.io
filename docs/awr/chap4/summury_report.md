@@ -206,95 +206,158 @@ and upper(b.stat_name)= upper('DB time');
  - H : DBA_HIST_SQL_SUMMARY
      
 - Buffer Nowait % => 아래의 경우 %가 떨어짐.
-    - 다른 세션이 읽고 있는 버퍼 블록 읽기를 시도하는 횟수가 증가
-    - 서로 다른 세션이 호환되지 않는 lock을 같은 buffer block에 적용하려고 하는 횟수가 증가
-    - hot block일 경우 낮은 수치.
-    - 일반적으로 95% 이상 값을 유지하는 것을 권장.
+    <details>
+    <summary>Buffer Nowait% 상세내용 </summary>
+    <div markdown="1">
+        - 다른 세션이 읽고 있는 버퍼 블록 읽기를 시도하는 횟수가 증가
+        - 서로 다른 세션이 호환되지 않는 lock을 같은 buffer block에 적용하려고 하는 횟수가 증가
+        - hot block일 경우 낮은 수치.
+        - 일반적으로 95% 이상 값을 유지하는 것을 권장.
+    </div>
+    </details>
 
 - Buffer Hit % => 전체 I/O 중 buffer cache I/O가 차지하는 비율
-    - 배치 업무가 주로 수행되는 DW 시스템에서는 디스크 I/O 비율이 높기 때문에 낮게 나옴.
-    - OLTP에서는 일반적으로 80% 이상을 유지
-    - 수치가 낮을 경우 
-        - buffer cache size가 적절한지 확인
-        - I/O 발생량이 높은 SQL들을 확인 후 튜닝 진행
-    - 정확한 캐시 적중률을 확인하기 위해서는 Buffer Pool Statistics 단위보고서의 Pool Hit% 항목을 참조해야 함
-        
+    <details>
+    <summary>Buffer Hit % 상세내용 </summary>
+    <div markdown="1">
+        - 배치 업무가 주로 수행되는 DW 시스템에서는 디스크 I/O 비율이 높기 때문에 낮게 나옴.
+        - OLTP에서는 일반적으로 80% 이상을 유지
+        - 수치가 낮을 경우 
+            - buffer cache size가 적절한지 확인
+            - I/O 발생량이 높은 SQL들을 확인 후 튜닝 진행
+        - 정확한 캐시 적중률을 확인하기 위해서는 Buffer Pool Statistics 단위보고서의 Pool Hit% 항목을 참조해야 함
+    </div>
+    </details>    
     
  - Library Hit %
-    - SQL 수행에 필요한 정보를 라이브러리 캐시 영역에서 읽은 비율을 나타냄.
-    - 일반적으로 적중률이 95% 이상
-    - 수치가 낮을 경우
-        - library cache 영역 크기 체크
-        - 과도한 hard parse가 발생하는지 확인
-        - 상세 내용은 Library Cache Activity 참조
-
+     <details>
+     <summary>Library Hit % 상세내용 </summary>
+     <div markdown="1">
+        - SQL 수행에 필요한 정보를 라이브러리 캐시 영역에서 읽은 비율을 나타냄.
+        - 일반적으로 적중률이 95% 이상
+        - 수치가 낮을 경우
+            - library cache 영역 크기 체크
+            - 과도한 hard parse가 발생하는지 확인
+            - 상세 내용은 Library Cache Activity 참조
+    </div>
+    </details>
+      
 - Execute to Parse %
-    - soft parse와 hard parse를 거치치 않고 SQL이 수행된 비율
-    - bind 변수 사용 및 library cache 적중률을 높게 유지하면 hard parse 발생을 최대한 피할 수 있음.
-    - SESSION_CACHED_CURSORS 값을 높게 설정하면 parse 정보를 세션의 PGA 영역에서 찾기 때문에 sofr parse도 피할 수 있음.
-        - SQL 수행 빈도가 아주 높은 OLTP 시스템에서는 과도한 soft parse로 library cache latch에 대한 경합이 높아질 수 있음.
-            - SESSION_CACHED_CURSORS 값을 높게 설정하여 soft parse 비율을 낮춘다.
-    - 일반적으로 SQL 수행 빈도가 OLTP 시스템에서는 80% 이상 유지
+     <details>
+     <summary>Execute to Parse % 상세내용 </summary>
+     <div markdown="1">
+        - soft parse와 hard parse를 거치치 않고 SQL이 수행된 비율
+        - bind 변수 사용 및 library cache 적중률을 높게 유지하면 hard parse 발생을 최대한 피할 수 있음.
+        - SESSION_CACHED_CURSORS 값을 높게 설정하면 parse 정보를 세션의 PGA 영역에서 찾기 때문에 sofr parse도 피할 수 있음.
+            - SQL 수행 빈도가 아주 높은 OLTP 시스템에서는 과도한 soft parse로 library cache latch에 대한 경합이 높아질 수 있음.
+                - SESSION_CACHED_CURSORS 값을 높게 설정하여 soft parse 비율을 낮춘다.
+        - 일반적으로 SQL 수행 빈도가 OLTP 시스템에서는 80% 이상 유지
+    </div>
+    </details>
     
 - Parse CPU to Parse Elapsed %
-    - parse를 수행하는 시간 중에 CPU를 사용하는 시간을 비율로 표현.
-    - 파스 수행시간 = DB CPU 사용 시간 + 대기 시간 
-    - 일반적으로 20% 이하일 경우 문제로 판단.
-        - 대기 시간이 높을 경우 Library Hit(%) 값과 Soft Parse(%) 값을 점검
-        - library cache 크기가 적당한지 hard parse가 과도하게 발생하는지에 대해 점검 필요.
-        - Library Cache와 관련된 대기 이벤트의 발생 수치가 증가했는지도 점검.
-    - SQL 수행 빈도가 높은 시스템
-        - soft parse에 대한 부하도 더 낮추기 위해 SESSION_CACHED_CURSORS 파라미터 값을 높게 설정해서 
-        - PGA영역에서 cursor(SQL hash value)를 캐싱하는 것도 좋은 방법.
-    
-- Redo Nowait %
-    - 변경 사항을 redo log buffer에 기록하기 위해 기다리지 않는 비율
-    - 99% 이상 유지
-        - 낮을 경우 redo log buffer나 redo log file의 크기가 부족하거나
-        - redo log file에 대한 disk I/O가 느리기 때문.
-        - 불필요하게 자주 수행되는 commit도 문제가 될 수 있음.
-
-- In-memory Sort %
-    - 정렬 작업이 수행될 때 디스크가 아닌 메모리에서 정렬이 이루어진 비율
-    - OLTP 업무에서 90% 이상을 권장.
-        - 값이 낮다면 memory sort 크기 지정 파라미터 설정 값을 점검.
-        - PGA 자동 관리 시 => PGA_AGGREGATE_TARGET 파라미터 확인
-        - PGA 수동 관리 시 => SORT_AREA_SIZE 값을 확인.
-
-- Soft Parse %
-    - 전체 parse 중에서 soft parse 비율 
-        - literal SQL이 많이 수행된다면 bind 변수를 사용하도록 변경해서 soft parse 비율을 높일 수 있음.
-    - DW와 배치 전용 시스템에서 필요에 의해 hard parse가 아니면 90% 이상을 유지.
-
-- Latch Hit % 
-    - latch 획득 시도 시 대기 없이 바로 획득한 비율.
-    - 값이 낮다면 Latch Sleep Breakdown 단위 보고서 참고.
-        - Sleeps 칼럼과 Misses 칼럼의 수치가 높은 latch에 대해 튜닝을 수행해야 함.
+     <details>
+     <summary>Parse CPU to Parse Elapsed % 상세내용 </summary>
+     <div markdown="1">
+        - parse를 수행하는 시간 중에 CPU를 사용하는 시간을 비율로 표현.
+        - 파스 수행시간 = DB CPU 사용 시간 + 대기 시간 
+        - 일반적으로 20% 이하일 경우 문제로 판단.
+            - 대기 시간이 높을 경우 Library Hit(%) 값과 Soft Parse(%) 값을 점검
+            - library cache 크기가 적당한지 hard parse가 과도하게 발생하는지에 대해 점검 필요.
+            - Library Cache와 관련된 대기 이벤트의 발생 수치가 증가했는지도 점검.
+        - SQL 수행 빈도가 높은 시스템
+            - soft parse에 대한 부하도 더 낮추기 위해 SESSION_CACHED_CURSORS 파라미터 값을 높게 설정해서 
+            - PGA영역에서 cursor(SQL hash value)를 캐싱하는 것도 좋은 방법.
+     </div>
+     </details>
         
-
+- Redo Nowait %
+     <details>
+     <summary>Parse CPU to Parse Elapsed % 상세내용 </summary>
+     <div markdown="1">
+        - 변경 사항을 redo log buffer에 기록하기 위해 기다리지 않는 비율
+        - 99% 이상 유지
+            - 낮을 경우 redo log buffer나 redo log file의 크기가 부족하거나
+            - redo log file에 대한 disk I/O가 느리기 때문.
+            - 불필요하게 자주 수행되는 commit도 문제가 될 수 있음.
+     </div>
+     </details>
+     
+- In-memory Sort %
+     <details>
+     <summary>In-memory Sort % 상세내용 </summary>
+     <div markdown="1">
+        - 정렬 작업이 수행될 때 디스크가 아닌 메모리에서 정렬이 이루어진 비율
+        - OLTP 업무에서 90% 이상을 권장.
+            - 값이 낮다면 memory sort 크기 지정 파라미터 설정 값을 점검.
+            - PGA 자동 관리 시 => PGA_AGGREGATE_TARGET 파라미터 확인
+            - PGA 수동 관리 시 => SORT_AREA_SIZE 값을 확인.
+     </div>
+     </details>
+     
+- Soft Parse %
+     <details>
+     <summary>Soft Parse % 상세내용 </summary>
+     <div markdown="1">
+        - 전체 parse 중에서 soft parse 비율 
+            - literal SQL이 많이 수행된다면 bind 변수를 사용하도록 변경해서 soft parse 비율을 높일 수 있음.
+        - DW와 배치 전용 시스템에서 필요에 의해 hard parse가 아니면 90% 이상을 유지.
+     </div>
+     </details>
+     
+- Latch Hit % 
+     <details>
+     <summary>Latch Hit %  상세내용 </summary>
+     <div markdown="1">
+        - latch 획득 시도 시 대기 없이 바로 획득한 비율.
+        - 값이 낮다면 Latch Sleep Breakdown 단위 보고서 참고.
+            - Sleeps 칼럼과 Misses 칼럼의 수치가 높은 latch에 대해 튜닝을 수행해야 함.
+     </div>
+     </details>
+       
 - % Non-Parse CPU
-    - parse에 소요된 CPU 시간을 제외한 나머지 시간의 비율
-    - Non-Parse 값이 98% 이하면 과도한 parse로 인한 경합 의심
-        - 경합 발생 시 Library Cache 관련 대기 이벤트 발생 수치도 함께 높아짐.
-        - 이를 해결하려면 hard Parse를 수행하는 SQL을 찾아서 soft Parse를 수행할 수 있도록 변경.
-        - 과도한 soft parse를 피하기 위해서 SESSION_CACHED_CURSORS 파라미터를 점검.
+     <details>
+     <summary>% Non-Parse CPU  상세내용 </summary>
+     <div markdown="1">
+        - parse에 소요된 CPU 시간을 제외한 나머지 시간의 비율
+        - Non-Parse 값이 98% 이하면 과도한 parse로 인한 경합 의심
+            - 경합 발생 시 Library Cache 관련 대기 이벤트 발생 수치도 함께 높아짐.
+            - 이를 해결하려면 hard Parse를 수행하는 SQL을 찾아서 soft Parse를 수행할 수 있도록 변경.
+            - 과도한 soft parse를 피하기 위해서 SESSION_CACHED_CURSORS 파라미터를 점검.
+     </div>
+     </details>
 
 - Memory Usage %
-    - shared pool 내에서 FREE공간을 제외한 실제 사용 중인 메모리 공간의 비율
-    - 100%에 가까울수록 문제가 됨.
-        - shared pool의 크기가 너무 작게 설정되거나 과도한 hard parse 수행으로 증가하게 됨.
-    - 0%에 가까워도 문제가 됨.
-        - shared pool 공간이 너무 과도하게 크게 설정된거라 효율성이 떨어진다고 볼 수 있음.
-    - 75% ~ 80% 정도의 사용률을 유지
+     <details>
+     <summary> Memory Usage %  상세내용 </summary>
+     <div markdown="1">
+        - shared pool 내에서 FREE공간을 제외한 실제 사용 중인 메모리 공간의 비율
+        - 100%에 가까울수록 문제가 됨.
+            - shared pool의 크기가 너무 작게 설정되거나 과도한 hard parse 수행으로 증가하게 됨.
+        - 0%에 가까워도 문제가 됨.
+            - shared pool 공간이 너무 과도하게 크게 설정된거라 효율성이 떨어진다고 볼 수 있음.
+        - 75% ~ 80% 정도의 사용률을 유지
+     </div>
+     </details>
 
 - % SQL with executions > 1
-    - 1회만 수행된 SQL 수를 제외한 나머지 SQL의 수행 빈도.
-    - 1회만 수행되는 literal SQL은 hard parsing의 주 원인.
-    - 90% 이상 유지해야 shared pool을 효율적으로 사용하고 최적의 성능을 유지
+     <details>
+     <summary> % SQL with executions > 1  상세내용 </summary>
+     <div markdown="1">
+        - 1회만 수행된 SQL 수를 제외한 나머지 SQL의 수행 빈도.
+        - 1회만 수행되는 literal SQL은 hard parsing의 주 원인.
+        - 90% 이상 유지해야 shared pool을 효율적으로 사용하고 최적의 성능을 유지
+     </div>
+     </details>
 
-- % Memory for SQL w/exec > 1 
-    - 1회 이상 수행된 SQL들이 사용하는 shared pool 공간의 메모리 비율
-    - % SQL with executions > 1과 연관관계가 높고 높을수록 좋다.
+- % Memory for SQL w/exec > 1
+     <details>
+     <summary> % Memory for SQL w/exec > 1  상세내용 </summary>
+     <div markdown="1"> 
+        - 1회 이상 수행된 SQL들이 사용하는 shared pool 공간의 메모리 비율
+        - % SQL with executions > 1과 연관관계가 높고 높을수록 좋다.
+     </div>
+     </details>
 
 ### Top 5 timed Events(현재 Top 10 Foreground Events by Total Wait Time)
 
@@ -364,26 +427,58 @@ and upper(b.stat_name)= upper('DB time');
                     - 악성 SQL 수행이나 latch 경합 등과 같이 CPU를 비효율적으로 많이 사용하는 원인을 점검해야 함.
                     
      
-    - db file sequential read
+- db file sequential read
+    <details>
+    <summary> db file sequential read  상세내용 </summary>
+    <div markdown="1"> 
         - 디스크 I/O는 피할 수 없음. disk I/O 성능이 보장된다면 문제가 안됨.
         - 단일 block I/O의 평균 속도 5 ~ 20ms로 권장.
+    </div>
+    </details>
     
-    - latch free => latch가 sleep 상태로 빠질 때 수치가 증가.
+- latch free => latch가 sleep 상태로 빠질 때 수치가 증가.
+    <details>
+    <summary> latch free 상세내용 </summary>
+    <div markdown="1"> 
         - latch 경합이 발생할 때 나타남.
         - latch free 대기 이벤트 비중이 높은 경우 latch spin 현상으로 CPU를 불필요하게 많이 사용.
             - 비중이 높은 경우, latch 경합으로 성능에 문제가 있을 수 있으므로 튜닝해야 함.
         - AWR 보고서 참고(latch activity, latch sleep breakdown, latch miss sources, parent latch statistics 등)
+    </div>
+    </details>
     
-    - db file scattered read
+- db file scattered read
+    <details>
+    <summary> db file scattered read 상세내용 </summary>
+    <div markdown="1"> 
         - full table scan or index fast full scan 시 발생.
         - OLTP 시스템이라면 불필요한 full table scan이 발생하는지 체크
+    </div>
+    </details>
         
-    - log file sync
+- log file sync
+    <details>
+    <summary> log file sync 상세내용 </summary>
+    <div markdown="1"> 
         - redo log buffer의 내용을 redo log file에 내려쓸 때 발생하는 대기 이벤트
         - 평균 대기 시간이 높다면 disk I/O 속도 및 redo log buffer 크기를 점검
         - 평균 대기 시간은 낮은데 발생 횟수가 많다면 redo log buffer 크기 설정 및 commit 발생 횟수를 점검.
+    </div>
+    </details>
         
-  
+
+### RAC Statistics
+ - 책 참조(페이지 82~88)
+ - http://wiki.gurubee.net/pages/viewpage.action?pageId=26742228
+ 
+- GCS(Global Cache Service)
+    - 메모리 block의 상태 정보를 관리하기 위해 RAC 구성 instance 간에 주고받는 메시지
+    - LMS 백그라운드 process가 수행
+
+- GES(Global Enqueue Service)
+    - RAC 구성 인스턴스간의 enqueue 정보를 관리
+    - LMD 백그라운드 프로세스가 수행
+
   
            
                 
